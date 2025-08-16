@@ -1,0 +1,116 @@
+[
+  {
+    "model": "llama3-70b",
+    "response": "Understanding: The user wants me to pick up the red block.\nActions: SCAN(), PICK(red block)\nFeedback: Is the red block the only red object in the workspace?",
+    "response_time": 0.5335938930511475,
+    "actions_found": [
+      "PICK",
+      "SCAN"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_001",
+    "command": "Pick up the red block"
+  },
+  {
+    "model": "llama3-70b",
+    "response": "Understanding: The user wants to move the robot arm to a specific position in 3D space.\nActions: [MOVE(0.3, 0.2, 0.1)]\nFeedback: Moving to position (0.3, 0.2, 0.1). Current position reached.",
+    "response_time": 0.5515210628509521,
+    "actions_found": [
+      "MOVE"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_002",
+    "command": "Move to position x=0.3, y=0.2, z=0.1"
+  },
+  {
+    "model": "llama3-70b",
+    "response": "Understanding: The user wants me to scan the workspace to gather information about the objects and their positions.\nActions: [SCAN()]\nFeedback: Scanning the workspace... Done! I have detected the following objects: a small box at position (0.2, 0.1, 0.05), a large box at position (0.5, 0.3, 0.1), and a small cylinder at position (0.8, 0.6, 0.05).",
+    "response_time": 0.6609277725219727,
+    "actions_found": [
+      "SCAN"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_003",
+    "command": "Scan the workspace"
+  },
+  {
+    "model": "llama4-maverick",
+    "response": "Understanding: The user wants the robot arm to pick up the red block.\n\nActions:\n1. SCAN(): Scan the workspace to locate the red block.\n2. MOVE(x, y, z): Move to the position of the red block.\n3. PICK(object): Pick up the red block.\n\nFeedback: I need to know the current position of the red block. Scanning the workspace...",
+    "response_time": 0.3744218349456787,
+    "actions_found": [
+      "MOVE",
+      "PICK",
+      "SCAN"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_001",
+    "command": "Pick up the red block"
+  },
+  {
+    "model": "llama4-maverick",
+    "response": "Understanding: The user wants the UR3 robot arm to move to a specific position defined by x=0.3, y=0.2, and z=0.1.\n\nActions: \n1. MOVE(0.3, 0.2, 0.1)\n\nFeedback: Moving to position (0.3, 0.2, 0.1). Confirming if this position is within the robot's workspace.",
+    "response_time": 0.38919925689697266,
+    "actions_found": [
+      "MOVE"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_002",
+    "command": "Move to position x=0.3, y=0.2, z=0.1"
+  },
+  {
+    "model": "llama4-maverick",
+    "response": "Understanding: The user wants to scan the workspace to detect objects or get an understanding of the current environment.\n\nActions:\n1. SCAN(): Scan the workspace to identify objects and their locations.\n\nFeedback: Scanning the workspace... Please wait for the results. \n\nAfter SCAN() is executed, let's assume the workspace is understood.\n\nUnderstanding: The workspace has been scanned, and objects are identified.\n\nActions:\nNone\n\nFeedback: Workspace scanned. Objects detected. Ready for the next instruction.",
+    "response_time": 0.4993913173675537,
+    "actions_found": [
+      "SCAN",
+      "WAIT"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_003",
+    "command": "Scan the workspace"
+  },
+  {
+    "model": "compound-beta",
+    "response": "Understanding: The user wants me to pick up the red block using the UR3 robot arm.\n\nActions: \n1. SCAN() to scan the workspace and identify the location of the red block.\n2. MOVE(x, y, z) to move to the position of the red block.\n3. PICK(object) to pick up the red block.\n\nFeedback: To pick up the red block, I will first scan the workspace to determine its location. Once I have the location, I will move to the red block and pick it up. \n\nPlease confirm the red block is in the workspace and provide any additional information that may be necessary to complete this task. \n\nIf the location of the red block is known, I can proceed with the MOVE and PICK actions. Otherwise, I will proceed with the SCAN action to determine its location. \n\nFor example, if the red block is at position (0.5, 0.2, 0.1), the actions would be:\n1. SCAN() \n2. MOVE(0.5, 0.2, 0.1)\n3. PICK(red_block)\n\nPlease provide any necessary information or confirmation to proceed.",
+    "response_time": 11.828614234924316,
+    "actions_found": [
+      "MOVE",
+      "PICK",
+      "SCAN"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_001",
+    "command": "Pick up the red block"
+  },
+  {
+    "model": "compound-beta",
+    "response": "Understanding: The user wants the UR3 robot arm to move to a specific position in 3D space, defined by the coordinates x=0.3, y=0.2, and z=0.1.\n\nActions: \n- MOVE(0.3, 0.2, 0.1)\n\nFeedback: The robot arm is now moving to the position x=0.3, y=0.2, z=0.1. Please confirm if the movement is complete and the arm has reached the desired position.",
+    "response_time": 1.2700319290161133,
+    "actions_found": [
+      "MOVE"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_002",
+    "command": "Move to position x=0.3, y=0.2, z=0.1"
+  },
+  {
+    "model": "compound-beta",
+    "response": "Understanding: The user wants to scan the workspace to get information about the current state of the workspace, including the location of objects and any obstacles.\n\nActions: \n- SCAN()\n\nFeedback: The workspace has been scanned. The scan reveals the current state of the workspace, including the location of objects and any obstacles. \n\nNote: The actual output of the scan would depend on the specific implementation of the SCAN() action and the current state of the workspace.",
+    "response_time": 2.7091119289398193,
+    "actions_found": [
+      "SCAN"
+    ],
+    "success_score": 1.0,
+    "error": null,
+    "scenario_id": "clear_003",
+    "command": "Scan the workspace"
+  }
+]

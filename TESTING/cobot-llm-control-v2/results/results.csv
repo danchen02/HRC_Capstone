@@ -1,0 +1,10 @@
+Model,Scenario_ID,Success_Score,Response_Time,Actions_Found,Has_Error
+llama3-70b,clear_001,1.0,0.5335938930511475,2,False
+llama3-70b,clear_002,1.0,0.5515210628509521,1,False
+llama3-70b,clear_003,1.0,0.6609277725219727,1,False
+llama4-maverick,clear_001,1.0,0.3744218349456787,3,False
+llama4-maverick,clear_002,1.0,0.38919925689697266,1,False
+llama4-maverick,clear_003,1.0,0.4993913173675537,2,False
+compound-beta,clear_001,1.0,11.828614234924316,3,False
+compound-beta,clear_002,1.0,1.2700319290161133,1,False
+compound-beta,clear_003,1.0,2.7091119289398193,1,False

@@ -1,0 +1,89 @@
+# Object Database for LLM-Cobot System
+# Last updated: 2025-08-16T14:30:25Z
+
+metadata:
+  last_updated: 2025-08-16T14:30:25Z
+  total_objects: 4
+  workspace_bounds:
+    x_min: -0.8
+    x_max: 0.8
+    y_min: -0.8
+    y_max: 0.8
+    z_min: 0.1
+    z_max: 1.0
+
+objects:
+  hammer_001:
+    name: hammer
+    description: red claw hammer with wooden handle
+    category: tool
+    position:
+      x: 0.32
+      y: 0.15
+      z: 0.12
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 1.57
+    dimensions:
+      length: 0.28
+      width: 0.12
+      height: 0.05
+    properties:
+      graspable: true
+      moveable: true
+      weight: light
+      color: red
+      material: metal_wood
+    confidence: 0.95
+    last_seen: 2025-08-16T14:30:20Z
+
+  cube_002:
+    name: cube
+    description: red cube
+    category: object
+    position:
+      x: -0.15
+      y: 0.25
+      z: 0.11
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    dimensions:
+      length: 0.05
+      width: 0.05
+      height: 0.05
+    properties:
+      graspable: true
+      moveable: true
+      weight: light
+      color: red
+      material: plastic
+    confidence: 0.89
+    last_seen: 2025-08-16T14:29:45Z
+
+  bolt_003:
+    name: bolt
+    description: small metal hex bolt
+    category: fastener
+    position:
+      x: 0.45
+      y: -0.12
+      z: 0.105
+    orientation:
+      roll: 0.0
+      pitch: 1.57
+      yaw: 0.0
+    dimensions:
+      length: 0.03
+      width: 0.008
+      height: 0.008
+    properties:
+      graspable: true
+      moveable: true
+      weight: very_light
+      color: silver
+      material: metal
+    confidence: 0.78
+    last_seen: 2025-08-16T14:28:12Z
