@@ -1,1 +1,105 @@
+# ROS 2 / Colcon build artifacts
+build/
+install/
+log/
+devel/
+
+# ROS 1 (if you ever work with it)
+devel_isolated/
+build_isolated/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+.pytest_cache/
+
+# Environment and config files
 .env
+.env.local
+.env.production
+.env.staging
+config.json
+secrets.yaml
+credentials.yaml
+api_keys.txt
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and data files
+*.log
+*.bag
+*.rosbag
+*.rosbag2
+*.mcap
+*.csv
+*.txt
+logs/
+data/
+
+# Compiled files
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.dll
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Documentation build
+docs/_build/
+*.pdf
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if you use any web interfaces)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Large model files (optional - uncomment if you have large AI models)
+# *.pth
+# *.onnx
+# *.pb
+# *.tflite
+
+# Custom additions for your specific project
+# Add any project-specific files or directories below:
