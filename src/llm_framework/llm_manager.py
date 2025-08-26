@@ -221,19 +221,30 @@ IMPORTANT:
         }
     
     def extract_actions(self, text: str) -> List[str]:
-        """Extract action commands from text"""
-        actions = []
+        """Extract action commands from text in the order they appear"""
+        import re
+        
         action_keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT", "QUERY"]
         
-        # Look for action patterns
-        import re
+        # Find all actions with their positions in the text
+        action_matches = []
+        
         for keyword in action_keywords:
             # Pattern: ACTION(params) or just ACTION
-            pattern = rf'{keyword}\s*\([^)]*\)|{keyword}'
-            matches = re.findall(pattern, text.upper())
-            actions.extend(matches)
+            pattern = rf'{keyword}\s*(?:\([^)]*\))?'
+            
+            for match in re.finditer(pattern, text.upper()):
+                action_matches.append({
+                    'action': match.group(),
+                    'position': match.start(),
+                    'keyword': keyword
+                })
         
-        return actions
+        # Sort by position in text to preserve order
+        action_matches.sort(key=lambda x: x['position'])
+        
+        # Extract just the action strings
+        return [match['action'] for match in action_matches]
     
     def generate_feedback(self, action_result: str, error_type: Optional[str] = None) -> str:
         """
