@@ -29,7 +29,7 @@ class LLMManager:
     Reads object database and communicates with Groq API.
     """
     
-    def __init__(self, objects_file: str = "config/objects.yaml"):
+    def __init__(self, objects_file: str = "../config/objects.yaml", motion_planner=None):
         # API setup
         self.api_key = os.getenv('GROQ_API_KEY')
         if not self.api_key:
@@ -48,6 +48,8 @@ class LLMManager:
         # Robot control settings
         self.max_tokens = 512
         self.temperature = 0.3
+
+        self.motion_planner = motion_planner
         
         print(f"✅ LLM Manager initialized with llama3-70b")
         print(f"📁 Loaded {len(self.objects_data.get('objects', {}))} objects from database")
@@ -91,6 +93,10 @@ class LLMManager:
     def create_system_prompt(self) -> str:
         """Create system prompt with current object context"""
         objects_context = self.get_objects_context()
+
+        current_pos = "unknown"
+        if self.motion_planner:
+            current_pos = self.motion_planner.get_current_position()
         
         prompt = f"""You are controlling a UR3 robot arm in a collaborative workspace.
 
@@ -98,9 +104,12 @@ AVAILABLE ACTIONS:
 - MOVE(x, y, z): Move end-effector to coordinates
 - PICK(object_name): Pick up specified object  
 - PLACE(x, y, z): Place held object at coordinates
+- HOME(): Move robot to home position (safe starting position)
 - SCAN(): Scan workspace to update object detection
 - WAIT(seconds): Wait for specified time
 - QUERY(question): Ask human for clarification
+
+Current end-effector position: {current_pos}
 
 CURRENT WORKSPACE:
 {objects_context}
@@ -214,7 +223,7 @@ IMPORTANT:
     def extract_actions(self, text: str) -> List[str]:
         """Extract action commands from text"""
         actions = []
-        action_keywords = ["MOVE", "PICK", "PLACE", "SCAN", "WAIT", "QUERY"]
+        action_keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT", "QUERY"]
         
         # Look for action patterns
         import re

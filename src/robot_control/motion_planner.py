@@ -21,6 +21,7 @@ from shape_msgs.msg import SolidPrimitive
 import math
 from typing import List, Tuple, Optional, Dict
 from enum import Enum
+import tf2_ros
 
 class PlanningResult(Enum):
     """Enumeration for planning results"""
@@ -62,7 +63,20 @@ class MotionPlanner(Node):
         self.position_tolerance = 0.01  # 1cm tolerance
         self.orientation_tolerance = 0.1  # radians
         self.joint_tolerance = 0.01  # radians
+
+        # TF listener for finding end-effector pos
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
         
+    def get_current_position(self):
+        """Get current end-effector position"""
+        try:
+            transform = self.tf_buffer.lookup_transform('base_link', 'tool0', rclpy.time.Time())
+            pos = transform.transform.translation
+            return f"({pos.x:.3f}, {pos.y:.3f}, {pos.z:.3f})"
+        except Exception:
+            return "unknown"
+    
     def move_to_coordinates(self, x: float, y: float, z: float, 
                           orientation: Optional[Tuple[float, float, float, float]] = None) -> PlanningResult:
         """
