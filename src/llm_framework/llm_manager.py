@@ -29,7 +29,7 @@ class LLMManager:
     Reads object database and communicates with Groq API.
     """
     
-    def __init__(self, objects_file: str = "../config/objects.yaml", motion_planner=None):
+    def __init__(self, objects_file: str = "config/objects.yaml", motion_planner=None):
         # API setup
         self.api_key = os.getenv('GROQ_API_KEY')
         if not self.api_key:
@@ -98,11 +98,11 @@ class LLMManager:
         if self.motion_planner:
             current_pos = self.motion_planner.get_current_position()
         
-        prompt = f"""You are controlling a UR3 robot arm in a collaborative workspace.
+        prompt = f"""You are a UR3 robot arm in a collaborative workspace.
 
 AVAILABLE ACTIONS:
 - MOVE(x, y, z): Move end-effector to coordinates
-- PICK(object_name): Pick up specified object  
+- PICK(object_name): Pick up specified object, dont move to object
 - PLACE(x, y, z): Place held object at coordinates
 - HOME(): Move robot to home position (safe starting position)
 - SCAN(): Scan workspace to update object detection
@@ -121,9 +121,10 @@ Feedback: [any questions or status updates for the user]
 
 IMPORTANT:
 - Use exact object names from the workspace list
-- Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0.1 to 1.0 for z)
-- If unclear, ask for clarification with QUERY()
-- If object not found, suggest SCAN() first"""
+- Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
+- If user command is unclear, ask for clarification with QUERY()
+- If object not found, suggest SCAN() first
+- if asked to PICK() object, don't MOVE() to object"""
         
         return prompt
     

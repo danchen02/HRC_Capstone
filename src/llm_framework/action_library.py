@@ -29,7 +29,7 @@ class ActionLibrary:
     Manages objects and coordinates with MotionPlanner.
     """
     
-    def __init__(self, motion_planner: MotionPlanner, objects_file: str = "../config/objects.yaml"):
+    def __init__(self, motion_planner: MotionPlanner, objects_file: str = "config/objects.yaml"):
         self.motion_planner = motion_planner
         self.objects_file = objects_file
         self.objects_data = {}
