@@ -308,7 +308,7 @@ class MotionPlanner(Node):
             return False
         if not (-0.8 <= y <= 0.8):
             return False
-        if not (0.1 <= z <= 1.0):  # Prevent going below table or too high
+        if not (0.0 <= z <= 1.0):  # Prevent going below table or too high
             return False
         return True
     

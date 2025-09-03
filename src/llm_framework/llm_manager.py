@@ -43,8 +43,8 @@ class LLMManager:
         
         self.client = Groq(api_key=self.api_key)
         
-        # Use single model: llama3-70b (proven to work well)
-        self.model_id = "llama3-70b-8192"
+        # Use single model
+        self.model_id = "llama-3.3-70b-versatile"
         
         # Object database
         self.objects_file = objects_file
@@ -61,7 +61,7 @@ class LLMManager:
         self.conversation_history: List[ConversationTurn] = []
         self.max_history = 5
         
-        print(f"✅ LLM Manager initialized with llama3-70b")
+        print(f"✅ LLM Manager initialized with llama-3.3-70b-versatile")
         print(f"📁 Loaded {len(self.objects_data.get('objects', {}))} objects from database")
     
     def load_objects(self):
@@ -128,11 +128,11 @@ class LLMManager:
 AVAILABLE ACTIONS:
 - MOVE(x, y, z): Move end-effector to coordinates
 - PICK(object_name): Pick up specified object, dont move to object
-- PLACE(x, y, z): Place held object at coordinates
+- PLACE(x, y, z): Place held object at coordinates, if location not fully specified, place on floor
 - HOME(): Move robot to home position (safe starting position)
 - SCAN(): Scan workspace to update object detection
 - WAIT(seconds): Wait for specified time
-- QUERY(question): Ask human for clarification
+- QUERY(question): Ask human for clarification. When QUERY() is an action, remove all other actions in the sequence
 
 Current end-effector position: {current_pos}
 
@@ -150,10 +150,10 @@ Feedback: [any questions or status updates for the user]
 IMPORTANT:
 - Use exact object names from the workspace list
 - Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
-- Consider previous conversation when interpreting current request
-- If unclear, ask for clarification with QUERY()
+- Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
+- If unclear, ask for clarification with QUERY(). When QUERY() is an action, remove all other actions in the sequence
 - If object not found, suggest SCAN() first
-- if asked to PICK() object, don't MOVE() to object"""
+- if asked to PICK() or PLACE() object, don't MOVE() to location"""
         
         return prompt
     

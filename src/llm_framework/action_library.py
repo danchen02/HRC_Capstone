@@ -224,7 +224,7 @@ class ActionLibrary:
         """
         return {
             "result": ActionResult.SUCCESS,
-            "message": f"User input needed: {question}"
+            "message": f"I need clarification: {question}"
         }
     
     def execute_home(self) -> Dict[str, any]:
