@@ -22,10 +22,16 @@ class LLMResponse:
     raw_response: str
     success: bool
 
+@dataclass
+class ConversationTurn:
+    """Single conversation turn"""
+    user_input: str
+    understanding: str
+    actions: List[str]
 
 class LLMManager:
     """
-    Simple LLM manager for robot control.
+    Simple LLM manager for robot control with conversation memory.
     Reads object database and communicates with Groq API.
     """
     
@@ -50,6 +56,10 @@ class LLMManager:
         self.temperature = 0.3
 
         self.motion_planner = motion_planner
+        
+        # Simple memory: last 5 conversations
+        self.conversation_history: List[ConversationTurn] = []
+        self.max_history = 5
         
         print(f"✅ LLM Manager initialized with llama3-70b")
         print(f"📁 Loaded {len(self.objects_data.get('objects', {}))} objects from database")
@@ -90,9 +100,24 @@ class LLMManager:
         
         return context
     
+    def get_conversation_context(self) -> str:
+        """Create conversation history context"""
+        if not self.conversation_history:
+            return "No previous conversation."
+        
+        context = "Recent conversation:\n"
+        for turn in self.conversation_history:
+            context += f"User: {turn.user_input}\n"
+            context += f"Understanding: {turn.understanding}\n"
+            context += f"Actions: {turn.actions}\n"
+            context += "---\n"
+        
+        return context
+    
     def create_system_prompt(self) -> str:
-        """Create system prompt with current object context"""
+        """Create system prompt with current object context and conversation memory"""
         objects_context = self.get_objects_context()
+        conversation_context = self.get_conversation_context()
 
         current_pos = "unknown"
         if self.motion_planner:
@@ -114,6 +139,9 @@ Current end-effector position: {current_pos}
 CURRENT WORKSPACE:
 {objects_context}
 
+CONVERSATION MEMORY:
+{conversation_context}
+
 RESPONSE FORMAT:
 Understanding: [what you think the user wants]
 Actions: [specific actions to take, e.g., MOVE(0.3, 0.2, 0.1)]
@@ -122,7 +150,8 @@ Feedback: [any questions or status updates for the user]
 IMPORTANT:
 - Use exact object names from the workspace list
 - Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
-- If user command is unclear, ask for clarification with QUERY()
+- Consider previous conversation when interpreting current request
+- If unclear, ask for clarification with QUERY()
 - If object not found, suggest SCAN() first
 - if asked to PICK() object, don't MOVE() to object"""
         
@@ -142,7 +171,7 @@ IMPORTANT:
             # Reload objects to get latest data
             self.load_objects()
             
-            # Create system prompt with current context
+            # Create system prompt with current context and memory
             system_prompt = self.create_system_prompt()
             
             # Call LLM API
@@ -161,6 +190,9 @@ IMPORTANT:
             # Parse response
             parsed = self.parse_response(raw_response)
             
+            # Store conversation turn in memory
+            self.add_to_memory(user_command, parsed['understanding'], parsed['actions'])
+            
             return LLMResponse(
                 understanding=parsed['understanding'],
                 actions=parsed['actions'],
@@ -178,6 +210,20 @@ IMPORTANT:
                 raw_response="",
                 success=False
             )
+    
+    def add_to_memory(self, user_input: str, understanding: str, actions: List[str]):
+        """Add conversation turn to memory"""
+        turn = ConversationTurn(
+            user_input=user_input,
+            understanding=understanding,
+            actions=actions
+        )
+        
+        self.conversation_history.append(turn)
+        
+        # Keep only last 5 conversations
+        if len(self.conversation_history) > self.max_history:
+            self.conversation_history = self.conversation_history[-self.max_history:]
     
     def parse_response(self, response_text: str) -> Dict[str, Any]:
         """Parse LLM response into structured format"""
@@ -303,6 +349,9 @@ def main():
             "Scan the workspace",
             "What tools are available?",
             "Place the object on the table"
+            "Now move back to where the hammer was",
+            "What did I ask you to do first?",
+            "Pick up that cube we talked about earlier"
         ]
         
         print(f"\n{'='*50}")
