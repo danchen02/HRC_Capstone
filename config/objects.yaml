@@ -87,3 +87,28 @@ objects:
       material: metal
     confidence: 0.78
     last_seen: 2025-08-16T14:28:12Z
+
+  human_004:
+    name: human
+    description: human collaborator
+    category: human
+    position:
+      x: 0.5
+      y: 0.0
+      z: 0.3
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 0.0
+    dimensions:
+      length: 0.30
+      width: 0.30
+      height: 0.30
+    properties:
+      graspable: false
+      moveable: false
+      weight: heavy
+      color: black
+      material: organic
+    confidence: 0.92
+    last_seen: 2025-08-16T14:29:45Z

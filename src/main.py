@@ -32,38 +32,40 @@ def main():
         
         # Simple loop
         while True:
-            # Get user input
             user_input = input("\n💬 Enter command: ").strip()
-            
             if user_input.lower() in ['quit', 'exit', 'q']:
                 break
-            
-            if not user_input:
-                continue
-            
-            print(f"\n🗣️  Processing: '{user_input}'")
+                
+            print(f"\n🗣️ Processing: '{user_input}'")
             
             # Step 1: LLM processes command
             llm_response = llm_manager.process_command(user_input)
-            
             if not llm_response.success:
                 print(f"❌ LLM Error: {llm_response.feedback}")
                 continue
-            
+                
             print(f"🧠 LLM Understanding: {llm_response.understanding}")
-            print(f"🎯 Actions: {llm_response.actions}")
             
-            # Step 2: Execute actions on real robot
-            print("🤖 Executing on robot...")
-            action_results = api_bridge.execute_action_list(llm_response.actions)
+            # Check if there are actions to execute
+            if llm_response.actions:
+                print(f"🎯 Actions: {llm_response.actions}")
+                print("🤖 Executing on robot...")
+                action_results = api_bridge.execute_action_list(llm_response.actions)
+                
+                # Show results
+                for i, result in enumerate(action_results, 1):
+                    if result["result"].value == "success":
+                        print(f"✅ Action {i}: {result['message']}")
+                    else:
+                        print(f"❌ Action {i}: {result['message']}")
+                        break
+            else:
+                # No actions - just a question/answer
+                print("💭 No robot actions needed")
             
-            # Step 3: Show results
-            for i, result in enumerate(action_results, 1):
-                if result["result"].value == "success":
-                    print(f"✅ Action {i}: {result['message']}")
-                else:
-                    print(f"❌ Action {i}: {result['message']}")
-                    break  # Stop on first failure
+            # Always show feedback (contains answers for general questions)
+            if llm_response.feedback:
+                print(f"🤖 Response: {llm_response.feedback}")
     
     except KeyboardInterrupt:
         print("\n👋 Interrupted by user")

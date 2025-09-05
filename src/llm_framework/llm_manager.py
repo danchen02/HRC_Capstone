@@ -28,6 +28,7 @@ class ConversationTurn:
     user_input: str
     understanding: str
     actions: List[str]
+    feedback: str
 
 class LLMManager:
     """
@@ -110,6 +111,7 @@ class LLMManager:
             context += f"User: {turn.user_input}\n"
             context += f"Understanding: {turn.understanding}\n"
             context += f"Actions: {turn.actions}\n"
+            context += f"Response: {turn.feedback}\n"
             context += "---\n"
         
         return context
@@ -132,7 +134,7 @@ AVAILABLE ACTIONS:
 - HOME(): Move robot to home position (safe starting position)
 - SCAN(): Scan workspace to update object detection
 - WAIT(seconds): Wait for specified time
-- QUERY(question): Ask human for clarification. When QUERY() is an action, remove all other actions in the sequence
+- QUERY(question): Ask human for clarification
 
 Current end-effector position: {current_pos}
 
@@ -144,14 +146,16 @@ CONVERSATION MEMORY:
 
 RESPONSE FORMAT:
 Understanding: [what you think the user wants]
-Actions: [specific actions to take, e.g., MOVE(0.3, 0.2, 0.1)]
-Feedback: [any questions or status updates for the user]
+Actions: [specific actions to take, e.g., MOVE(0.3, 0.2, 0.1) OR leave empty if just answering a question]
+Feedback: [any questions or status updates for the user OR direct answers to general questions]
 
 IMPORTANT:
+- For general knowledge questions (non-robot related), provide the answer directly in the Feedback section and leave Actions empty
 - Use exact object names from the workspace list
 - Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
 - Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
-- If unclear, ask for clarification with QUERY(). When QUERY() is an action, remove all other actions in the sequence
+- If unclear, ask for clarification with QUERY()
+- If you use QUERY(), it must be the ONLY action. Never combine QUERY with other actions
 - If object not found, suggest SCAN() first
 - if asked to PICK() or PLACE() object, don't MOVE() to location"""
         
@@ -191,7 +195,12 @@ IMPORTANT:
             parsed = self.parse_response(raw_response)
             
             # Store conversation turn in memory
-            self.add_to_memory(user_command, parsed['understanding'], parsed['actions'])
+            self.add_to_memory(
+                user_command, 
+                parsed['understanding'], 
+                parsed['actions'],
+                parsed['feedback']
+            )
             
             return LLMResponse(
                 understanding=parsed['understanding'],
@@ -211,12 +220,13 @@ IMPORTANT:
                 success=False
             )
     
-    def add_to_memory(self, user_input: str, understanding: str, actions: List[str]):
+    def add_to_memory(self, user_input: str, understanding: str, actions: List[str], feedback: str):
         """Add conversation turn to memory"""
         turn = ConversationTurn(
             user_input=user_input,
             understanding=understanding,
-            actions=actions
+            actions=actions,
+            feedback=feedback
         )
         
         self.conversation_history.append(turn)
