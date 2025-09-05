@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Barebones Main - User prompt to robot execution
+Main - User prompt to robot execution
 """
 import rclpy
 
@@ -13,8 +13,7 @@ from llm_framework.action_library import ActionLibrary
 
 def main():
     """Simple user input to robot execution"""
-    
-    print("🤖 Barebones LLM-Robot System")
+    print("🤖 LLM-Robot System")
     print("=" * 40)
     
     # Initialize ROS2
@@ -46,7 +45,11 @@ def main():
                 
             print(f"🧠 LLM Understanding: {llm_response.understanding}")
             
-            # Check if there are actions to execute
+            # Show response FIRST (before executing actions)
+            if llm_response.feedback:
+                print(f"🤖 Response: {llm_response.feedback}")
+            
+            # Then check if there are actions to execute
             if llm_response.actions:
                 print(f"🎯 Actions: {llm_response.actions}")
                 print("🤖 Executing on robot...")
@@ -62,11 +65,7 @@ def main():
             else:
                 # No actions - just a question/answer
                 print("💭 No robot actions needed")
-            
-            # Always show feedback (contains answers for general questions)
-            if llm_response.feedback:
-                print(f"🤖 Response: {llm_response.feedback}")
-    
+                
     except KeyboardInterrupt:
         print("\n👋 Interrupted by user")
     except Exception as e:

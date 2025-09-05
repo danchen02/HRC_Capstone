@@ -212,21 +212,6 @@ class ActionLibrary:
                 "message": f"Wait error: {str(e)}"
             }
     
-    def execute_query(self, question: str) -> Dict[str, any]:
-        """
-        Execute QUERY action
-        
-        Args:
-            question: Question to ask user
-            
-        Returns:
-            Dict with result info
-        """
-        return {
-            "result": ActionResult.SUCCESS,
-            "message": f"I need clarification: {question}"
-        }
-    
     def execute_home(self) -> Dict[str, any]:
         """
         Execute HOME action - move to home position using specific joint angles
@@ -266,12 +251,17 @@ class ActionLibrary:
                 "message": f"Home error: {str(e)}"
             }
     
-    def _find_object(self, object_name: str) -> Optional[Dict]:
-        """Find object in database by name"""
+    def _find_object(self, object_identifier: str) -> Optional[Dict]:
+        """Find object in database by exact ID or name"""
         objects = self.objects_data.get("objects", {})
         
+        # First try exact object ID match (e.g., "hammer_001")
+        if object_identifier in objects:
+            return objects[object_identifier]
+        
+        # Fallback to name matching for backward compatibility
         for obj_id, obj_info in objects.items():
-            if obj_info.get("name", "").lower() == object_name.lower():
+            if obj_info.get("name", "").lower() == object_identifier.lower():
                 return obj_info
         
         return None

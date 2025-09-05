@@ -81,7 +81,7 @@ class LLMManager:
             self.objects_data = {"objects": {}, "metadata": {}}
     
     def get_objects_context(self) -> str:
-        """Create context string about available objects"""
+        """Create context string about available objects with IDs"""
         if not self.objects_data.get('objects'):
             return "No objects currently detected in workspace."
         
@@ -92,7 +92,8 @@ class LLMManager:
             pos = obj_info.get('position', {})
             graspable = obj_info.get('properties', {}).get('graspable', True)
             
-            context += f"- {name}: {desc}"
+            # Include the object ID for precise targeting
+            context += f"- {obj_id} ({name}): {desc}"
             if pos:
                 context += f" at ({pos.get('x', 0):.2f}, {pos.get('y', 0):.2f}, {pos.get('z', 0):.2f})"
             if not graspable:
@@ -127,14 +128,14 @@ class LLMManager:
         
         prompt = f"""You are a UR3 robot arm in a collaborative workspace.
 
-AVAILABLE ACTIONS:
+AVAILABLE ACTIONS (leave blank if command is ambiguous):
 - MOVE(x, y, z): Move end-effector to coordinates
-- PICK(object_name): Pick up specified object, dont move to object
+- PICK(object_ID): Pick up specified object, dont move to object. 
 - PLACE(x, y, z): Place held object at coordinates, if location not fully specified, place on floor
 - HOME(): Move robot to home position (safe starting position)
 - SCAN(): Scan workspace to update object detection
 - WAIT(seconds): Wait for specified time
-- QUERY(question): Ask human for clarification
+
 
 Current end-effector position: {current_pos}
 
@@ -147,15 +148,17 @@ CONVERSATION MEMORY:
 RESPONSE FORMAT:
 Understanding: [what you think the user wants]
 Actions: [specific actions to take, e.g., MOVE(0.3, 0.2, 0.1) OR leave empty if just answering a question]
-Feedback: [any questions or status updates for the user OR direct answers to general questions]
+Feedback: [any questions or status updates for the user OR direct answers to general questions (use object names not their IDs)]
 
 IMPORTANT:
 - For general knowledge questions (non-robot related), provide the answer directly in the Feedback section and leave Actions empty
+- If unclear or vague, ask for clarification directly in the Feedback section and leave Actions empty
+- Use exact object IDs from the workspace list: PICK(hammer_001), PICK(cube_003), PICK(cube_006)
+- Object IDs ensure you pick the correct item when multiple similar objects exist
 - Use exact object names from the workspace list
 - Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
 - Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
-- If unclear, ask for clarification with QUERY()
-- If you use QUERY(), it must be the ONLY action. Never combine QUERY with other actions
+- Past conversations may have incorrect environment data, always use objects in the "Current WORKSPACE"
 - If object not found, suggest SCAN() first
 - if asked to PICK() or PLACE() object, don't MOVE() to location"""
         
@@ -281,7 +284,7 @@ IMPORTANT:
         """Extract action commands from text in the order they appear"""
         import re
         
-        action_keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT", "QUERY"]
+        action_keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT"]
         
         # Find all actions with their positions in the text
         action_matches = []

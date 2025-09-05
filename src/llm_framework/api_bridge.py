@@ -92,8 +92,6 @@ class APIBridge:
             return self._parse_scan(action_string)
         elif action_string.startswith("WAIT"):
             return self._parse_wait(action_string)
-        elif action_string.startswith("QUERY"):
-            return self._parse_query(action_string)
         elif action_string.startswith("HOME"):
             return self._parse_home(action_string)
         else:
@@ -127,8 +125,6 @@ class APIBridge:
                 return self.action_library.execute_scan(**params)
             elif action_type == "wait":
                 return self.action_library.execute_wait(**params)
-            elif action_type == "query":
-                return self.action_library.execute_query(**params)
             elif action_type == "home":
                 return self.action_library.execute_home(**params)
             else:
@@ -235,18 +231,6 @@ class APIBridge:
             "parameters": {"seconds": seconds}
         }
     
-    def _parse_query(self, action_string: str) -> Dict[str, Any]:
-        """Parse QUERY(question)"""
-        # Extract question from "QUERY(Which tool?)"
-        match = re.search(r'QUERY\s*\(\s*([^)]+)\s*\)', action_string, re.IGNORECASE)
-        question = match.group(1).strip().strip('"\'') if match else "Need clarification"
-        
-        return {
-            "parse_result": ParseResult.SUCCESS,
-            "action_type": "query",
-            "parameters": {"question": question}
-        }
-    
     def _parse_home(self, action_string: str) -> Dict[str, Any]:
         """Parse HOME()"""
         return {
@@ -278,7 +262,6 @@ def main():
         "PLACE(0.4, 0.3, 0.15)",
         "SCAN()",
         "WAIT(2.0)",
-        "QUERY(Which tool?)",
         "HOME()",
         "INVALID_ACTION(test)"
     ]
