@@ -160,6 +160,7 @@ IMPORTANT:
 - Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
 - Past conversations may have incorrect environment data, always use objects in the "Current WORKSPACE"
 - If object not found, suggest SCAN() first
+- When asked to pass an object to the human, use MOVE() not PLACE()
 - if asked to PICK() or PLACE() object, don't MOVE() to location"""
         
         return prompt

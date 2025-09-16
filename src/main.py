@@ -9,6 +9,7 @@ from robot_control.motion_planner import MotionPlanner, PlanningResult
 from llm_framework.llm_manager import LLMManager
 from llm_framework.api_bridge import APIBridge
 from llm_framework.action_library import ActionLibrary
+from user_interface.gui_manager import RobotGUI
 
 
 def main():
@@ -29,6 +30,10 @@ def main():
         print("✅ All systems ready!")
         print("\nType 'quit' to exit")
         
+        gui = RobotGUI(llm_manager, api_bridge)
+        gui.run()
+
+        """
         # Simple loop
         while True:
             user_input = input("\n💬 Enter command: ").strip()
@@ -65,6 +70,7 @@ def main():
             else:
                 # No actions - just a question/answer
                 print("💭 No robot actions needed")
+            """
                 
     except KeyboardInterrupt:
         print("\n👋 Interrupted by user")
