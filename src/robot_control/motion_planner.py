@@ -22,6 +22,8 @@ import math
 from typing import List, Tuple, Optional, Dict
 from enum import Enum
 import tf2_ros
+from std_srvs.srv import Empty
+from action_msgs.srv import CancelGoal
 
 class PlanningResult(Enum):
     """Enumeration for planning results"""
@@ -67,6 +69,19 @@ class MotionPlanner(Node):
         # TF listener for finding end-effector pos
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
+
+        # Add trajectory controller action client for emergency stop
+        from control_msgs.action import FollowJointTrajectory
+        self._trajectory_client = ActionClient(
+            self, 
+            FollowJointTrajectory, 
+            '/joint_trajectory_controller/follow_joint_trajectory'
+        )
+        
+        # cancellation flag
+        self._goal_cancelled = False
+
+        
         
     def get_current_position(self):
         """Get current end-effector position"""
@@ -276,15 +291,33 @@ class MotionPlanner(Node):
             rclpy.spin_until_future_complete(self, future)
             
             goal_handle = future.result()
+            
+            # STORE the goal_handle for emergency stopping
+            self._current_goal_handle = goal_handle
+            
             if not goal_handle.accepted:
                 self.get_logger().error("Goal not accepted by MoveIt")
+                self._current_goal_handle = None
                 return PlanningResult.GOAL_NOT_ACCEPTED
             
-            # Wait for result
+            # Wait for result with cancellation handling
             result_future = goal_handle.get_result_async()
-            rclpy.spin_until_future_complete(self, result_future)
+            
+            # Check for cancellation while waiting
+            while not result_future.done():
+                rclpy.spin_once(self, timeout_sec=0.1)
+                
+                # Check if goal was cancelled
+                if hasattr(self, '_goal_cancelled') and self._goal_cancelled:
+                    self.get_logger().info("🛑 Goal execution cancelled via emergency stop")
+                    self._goal_cancelled = False
+                    self._current_goal_handle = None
+                    return PlanningResult.EXECUTION_FAILED
             
             result = result_future.result()
+            
+            # CLEAR the goal_handle when done
+            self._current_goal_handle = None
             
             # Check success (MoveIt error code 1 = SUCCESS)
             if result.result.error_code.val == 1:
@@ -296,6 +329,7 @@ class MotionPlanner(Node):
                 
         except Exception as e:
             self.get_logger().error(f"Error executing goal: {str(e)}")
+            self._current_goal_handle = None
             return PlanningResult.EXECUTION_FAILED
     
     def _validate_coordinates(self, x: float, y: float, z: float) -> bool:
@@ -325,6 +359,51 @@ class MotionPlanner(Node):
             
         self.get_logger().info(f"Updated tolerances - Pos: {self.position_tolerance}, "
                              f"Orient: {self.orientation_tolerance}, Joint: {self.joint_tolerance}")
+        
+    def emergency_stop(self):
+        """Emergency stop - cancel specific trajectory goal"""
+        try:
+            self.get_logger().warn("🚨 EMERGENCY STOP ACTIVATED")
+            
+            # Set cancellation flag
+            self._goal_cancelled = True
+            
+            # Cancel trajectory controller goal using goal service
+            try:
+                from action_msgs.srv import CancelGoal
+                from action_msgs.msg import GoalInfo
+                
+                # Create cancel service client
+                cancel_client = self.create_client(
+                    CancelGoal, 
+                    '/joint_trajectory_controller/follow_joint_trajectory/_action/cancel_goal'
+                )
+                
+                if cancel_client.wait_for_service(timeout_sec=0.5):
+                    # Create cancel request for all goals
+                    request = CancelGoal.Request()
+                    # Empty goal_info means cancel all goals
+                    
+                    # Send cancel request
+                    future = cancel_client.call_async(request)
+                    self.get_logger().info("🛑 Sent cancel request to trajectory controller")
+                    return True
+                else:
+                    self.get_logger().warn("Cancel service not available")
+                    
+            except Exception as e:
+                self.get_logger().error(f"Failed to cancel via service: {e}")
+            
+            # Fallback: cancel MoveIt action
+            if hasattr(self, '_current_goal_handle') and self._current_goal_handle:
+                self._current_goal_handle.cancel_goal_async()
+                self.get_logger().info("🛑 Cancelled MoveIt action as fallback")
+            
+            return False
+            
+        except Exception as e:
+            self.get_logger().error(f"Emergency stop failed: {e}")
+            return False
 
 
 # Example usage and testing
