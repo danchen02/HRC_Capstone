@@ -25,8 +25,6 @@ class RobotGUI:
     def __init__(self, llm_manager=None, api_bridge=None):
         self.llm_manager = llm_manager
         self.api_bridge = api_bridge
-
-        self.stop_all_processing = False
         
         # Groq client for speech-to-text
         self.groq_client = Groq(api_key=os.getenv('GROQ_API_KEY'))
@@ -331,91 +329,10 @@ class RobotGUI:
         self.add_to_feed("System", "Communication feed cleared", "robot")
     
     def emergency_stop(self):
-        """Emergency stop with MoveIt integration"""
-        print("🚨 EMERGENCY STOP ACTIVATED!")
-        
-        try:
-            # Call motion planner's emergency stop
-            if self.llm_manager and hasattr(self.llm_manager, 'motion_planner'):
-                motion_planner = self.llm_manager.motion_planner
-                if hasattr(motion_planner, 'emergency_stop'):
-                    success = motion_planner.emergency_stop()
-                    if success:
-                        print("✅ Robot motion halted via MoveIt")
-                    else:
-                        print("⚠️ Failed to halt robot motion")
-            
-            # Stop processing and disable GUI
-            self.stop_all_processing = True
-            self.disable_controls_during_emergency()
-            
-            messagebox.showwarning("Emergency Stop", "🚨 Robot motion stopped!\n\nClick 'Reset' to resume.")
-            
-        except Exception as e:
-            print(f"❌ Emergency stop failed: {e}")
-    
-    def disable_controls_during_emergency(self):
-        """Disable controls after emergency stop"""
-        try:
-            # Disable input controls
-            self.text_input.config(state='disabled')
-            self.send_button.config(state='disabled')
-            if hasattr(self, 'record_button'):
-                self.record_button.config(state='disabled')
-            
-            # Find the button frame and add reset button
-            for child in self.root.winfo_children():
-                if isinstance(child, ttk.Frame):
-                    for grandchild in child.winfo_children():
-                        if isinstance(grandchild, ttk.Frame):
-                            for button in grandchild.winfo_children():
-                                if isinstance(button, ttk.Button) and "Clear Feed" in str(button.cget('text')):
-                                    button_frame = grandchild
-                                    
-                                    # Add reset button if not already there
-                                    if not hasattr(self, 'reset_button'):
-                                        self.reset_button = ttk.Button(button_frame, text="Reset System", 
-                                                                    command=self.reset_after_emergency, 
-                                                                    style="Reset.TButton")
-                                        self.reset_button.pack(side=tk.LEFT, padx=(10, 0))
-                                        
-                                        # Style the reset button
-                                        style = ttk.Style()
-                                        style.configure("Reset.TButton", foreground="orange")
-                                    return
-                
-        except Exception as e:
-            print(f"❌ Error disabling controls: {e}")
-
-    def reset_after_emergency(self):
-        """Reset system after emergency stop"""
-        try:
-            print("🔄 Resetting system after emergency stop...")
-            
-            # Re-enable controls
-            self.text_input.config(state='normal')
-            self.send_button.config(state='normal')
-            if hasattr(self, 'record_button'):
-                self.record_button.config(state='normal')
-            
-            # Clear emergency flag
-            self.stop_all_processing = False
-            
-            # Remove reset button
-            if hasattr(self, 'reset_button'):
-                self.reset_button.destroy()
-                delattr(self, 'reset_button')
-            
-            # Notify user
-            self.add_to_feed("System", "System reset - operations resumed", "robot")
-            print("✅ System reset complete")
-            
-            messagebox.showinfo("System Reset", "System has been reset.\nOperations can now resume.")
-            
-        except Exception as e:
-            error_msg = f"❌ Reset failed: {str(e)}"
-            print(error_msg)
-            self.add_to_feed("System", error_msg, "error")
+        """Emergency stop function"""
+        self.add_to_feed("System", "🚨 EMERGENCY STOP ACTIVATED", "error")
+        # TODO: Implement actual emergency stop for robot
+        messagebox.showwarning("Emergency Stop", "Emergency stop activated!\n(Robot stop functionality to be implemented)")
     
     def run(self):
         """Start the GUI main loop"""

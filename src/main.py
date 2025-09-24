@@ -22,7 +22,7 @@ def main():
     
     try:
         # Create components
-        motion_planner = MotionPlanner()
+        motion_planner = MotionPlanner(group_name="ur_onrobot_manipulator")
         action_library = ActionLibrary(motion_planner)
         api_bridge = APIBridge(action_library)
         llm_manager = LLMManager(motion_planner=motion_planner)

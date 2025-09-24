@@ -21,10 +21,10 @@ The launch
     ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur3 launch_rviz:=true moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml
 
 Launch with Gazebo
-    ros2 launch gazebo_ros gazebo.launch.py world:=/home/dan/ros2_ws/src/custom_worlds/worlds/ur3_workspace.world
+    ros2 launch gazebo_ros gazebo.launch.py world:=/home/dan/ros2_ws/src/custom_worlds/worlds/ur3e_workspace.world
     
     ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py \
-    ur_type:=ur3 \
+    ur_type:=ur3e \
     launch_rviz:=true \
     moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml
 
@@ -38,6 +38,14 @@ python src/main.py
 
 
 real robot
-ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur3 robot_ip:=192.168.0.196
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur3e robot_ip:=192.168.0.191
 
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur3 launch_rviz:=true moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml 
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur3e launch_rviz:=true moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml 
+
+
+
+
+Gripper sim
+ros2 launch ur_robot_driver ur3e.launch.py robot_ip:=xxx.xxx.xxx.xxx use_fake_hardware:=true launch_rviz:=false
+ros2 launch ur_onrobot_control start_robot.launch.py ur_type:=ur3e onrobot_type:=rg2 use_fake_hardware:=true launch_rviz:=false
+ros2 launch ur_onrobot_moveit_config ur_onrobot_moveit.launch.py ur_type:=ur3e onrobot_type:=rg2 moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml
