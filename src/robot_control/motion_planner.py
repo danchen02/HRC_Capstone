@@ -22,6 +22,8 @@ import math
 from typing import List, Tuple, Optional, Dict
 from enum import Enum
 import tf2_ros
+from control_msgs.action import FollowJointTrajectory
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 class PlanningResult(Enum):
     """Enumeration for planning results"""
@@ -67,11 +69,83 @@ class MotionPlanner(Node):
         # TF listener for finding end-effector pos
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
+
+        # Create gripper action client with correct topic
+        self._gripper_client = ActionClient(
+            self, 
+            FollowJointTrajectory, 
+            '/finger_width_trajectory_controller/follow_joint_trajectory'
+        )
+        
+        # Correct gripper parameters from MoveIt config
+        self.gripper_open_width = 0.100   # From MoveIt: open state
+        self.gripper_closed_width = 0.0   # From MoveIt: closed state
+
+    def control_gripper(self, target_width: float, duration: float = 2.0) -> PlanningResult:
+        """Control gripper with correct joint name"""
+        try:
+            target_width = max(0.0, min(target_width, self.gripper_open_width))
+            
+            self.get_logger().info(f"Controlling gripper to width: {target_width}")
+            
+            if not self._gripper_client.wait_for_server(timeout_sec=5.0):
+                self.get_logger().error("Gripper action server not available!")
+                return PlanningResult.GOAL_NOT_ACCEPTED
+            
+            # Create trajectory goal with CORRECT joint name
+            goal = FollowJointTrajectory.Goal()
+            goal.trajectory = JointTrajectory()
+            goal.trajectory.header.stamp = self.get_clock().now().to_msg()
+            goal.trajectory.joint_names = ['finger_width']  # FIXED: was 'finger_width_joint'
+            
+            point = JointTrajectoryPoint()
+            point.positions = [target_width]
+            point.velocities = [0.0]
+            point.time_from_start.sec = int(duration)
+            point.time_from_start.nanosec = int((duration - int(duration)) * 1e9)
+            
+            goal.trajectory.points = [point]
+            
+            self.get_logger().info(f"Sending goal: joint={goal.trajectory.joint_names}, pos={point.positions}")
+            
+            # Send goal
+            future = self._gripper_client.send_goal_async(goal)
+            rclpy.spin_until_future_complete(self, future)
+            
+            goal_handle = future.result()
+            if not goal_handle.accepted:
+                self.get_logger().error("Gripper goal not accepted")
+                return PlanningResult.GOAL_NOT_ACCEPTED
+            
+            self.get_logger().info("Goal accepted! Waiting for completion...")
+            
+            result_future = goal_handle.get_result_async()
+            rclpy.spin_until_future_complete(self, result_future)
+            
+            result = result_future.result()
+            if result.result.error_code == 0:  # Success
+                self.get_logger().info("Gripper movement completed successfully")
+                return PlanningResult.SUCCESS
+            else:
+                self.get_logger().error(f"Gripper execution failed: {result.result.error_code}")
+                return PlanningResult.EXECUTION_FAILED
+                
+        except Exception as e:
+            self.get_logger().error(f"Gripper control failed: {e}")
+            return PlanningResult.EXECUTION_FAILED
+        
+    def open_gripper(self) -> PlanningResult:
+        """Open gripper fully"""
+        return self.control_gripper(self.gripper_open_width)
+    
+    def close_gripper(self) -> PlanningResult:
+        """Close gripper fully"""  
+        return self.control_gripper(self.gripper_closed_width)
         
     def get_current_position(self):
         """Get current end-effector position"""
         try:
-            transform = self.tf_buffer.lookup_transform('base_link', 'tool0', rclpy.time.Time())
+            transform = self.tf_buffer.lookup_transform('base_link', 'gripper_tcp', rclpy.time.Time())
             pos = transform.transform.translation
             return f"({pos.x:.3f}, {pos.y:.3f}, {pos.z:.3f})"
         except Exception:
@@ -147,27 +221,6 @@ class MotionPlanner(Node):
         except Exception as e:
             self.get_logger().error(f"Error in move_to_joint_angles: {str(e)}")
             return PlanningResult.PLANNING_FAILED
-    
-    def plan_pick_sequence(self, object_x: float, object_y: float, object_z: float, 
-                          approach_height: float = 0.1) -> List[Tuple[float, float, float]]:
-        """
-        Plan a pick sequence: approach -> grasp -> lift.
-        
-        Args:
-            object_x, object_y, object_z: Object position
-            approach_height: Height above object for approach (meters)
-            
-        Returns:
-            List of (x, y, z) waypoints for pick sequence
-        """
-        waypoints = [
-            (object_x, object_y, object_z + approach_height),  # Approach point
-            (object_x, object_y, object_z),                    # Grasp point
-            (object_x, object_y, object_z + approach_height)   # Lift point
-        ]
-        
-        self.get_logger().info(f"Generated pick sequence with {len(waypoints)} waypoints")
-        return waypoints
     
     
     

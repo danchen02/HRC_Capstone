@@ -94,6 +94,8 @@ class APIBridge:
             return self._parse_wait(action_string)
         elif action_string.startswith("HOME"):
             return self._parse_home(action_string)
+        elif action_string.startswith("GRIPPER"):
+          return self._parse_gripper(action_string)
         else:
             return {
                 "parse_result": ParseResult.UNKNOWN_ACTION,
@@ -127,6 +129,8 @@ class APIBridge:
                 return self.action_library.execute_wait(**params)
             elif action_type == "home":
                 return self.action_library.execute_home(**params)
+            elif action_type == "gripper":
+                return self.action_library.execute_gripper(**params)
             else:
                 return {
                     "result": ActionResult.FAILED,
@@ -237,6 +241,42 @@ class APIBridge:
             "parse_result": ParseResult.SUCCESS,
             "action_type": "home",
             "parameters": {}
+        }
+    
+    def _parse_gripper(self, action_string: str) -> Dict[str, Any]:
+        """Parse GRIPPER(open/close) or GRIPPER(0.05)"""
+        match = re.search(r'GRIPPER\s*\(\s*([^)]+)\s*\)', action_string, re.IGNORECASE)
+        
+        if not match:
+            return {
+                "parse_result": ParseResult.INVALID_FORMAT,
+                "message": f"Invalid GRIPPER format: {action_string}",
+                "action_type": "gripper"
+            }
+        
+        param = match.group(1).strip().lower()
+        
+        # Handle string parameters
+        if param in ['open', 'opened']:
+            width = 0.100  # Fully open
+        elif param in ['close', 'closed', 'shut']:
+            width = 0.0    # Fully closed
+        else:
+            # Handle numeric parameter
+            try:
+                width = float(param)
+                width = max(0.0, min(width, 0.100))  # Clamp to valid range
+            except ValueError:
+                return {
+                    "parse_result": ParseResult.INVALID_FORMAT,
+                    "message": f"Invalid gripper parameter: {param}",
+                    "action_type": "gripper"
+                }
+        
+        return {
+            "parse_result": ParseResult.SUCCESS,
+            "action_type": "gripper",
+            "parameters": {"target_width": width}
         }
 
 

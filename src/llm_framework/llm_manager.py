@@ -135,6 +135,7 @@ AVAILABLE ACTIONS (leave blank if command is ambiguous):
 - HOME(): Move robot to home position (safe starting position)
 - SCAN(): Scan workspace to update object detection
 - WAIT(seconds): Wait for specified time
+- GRIPPER(open/close): Control gripper (or GRIPPER(0.05) for specific width) 
 
 
 Current end-effector position: {current_pos}
@@ -285,7 +286,7 @@ IMPORTANT:
         """Extract action commands from text in the order they appear"""
         import re
         
-        action_keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT"]
+        action_keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT", "GRIPPER"]
         
         # Find all actions with their positions in the text
         action_matches = []

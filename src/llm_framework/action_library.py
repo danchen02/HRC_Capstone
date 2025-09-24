@@ -82,15 +82,7 @@ class ActionLibrary:
             }
     
     def execute_pick(self, object_name: str) -> Dict[str, any]:
-        """
-        Execute PICK action
-        
-        Args:
-            object_name: Name of object to pick
-            
-        Returns:
-            Dict with result info
-        """
+        """Execute PICK action with inline waypoint logic"""
         try:
             # Reload objects to get latest positions  
             self.load_objects()
@@ -103,25 +95,66 @@ class ActionLibrary:
                     "message": f"Object '{object_name}' not found in workspace"
                 }
             
-            # Execute pick sequence
             pos = object_info["position"]
-            pick_waypoints = self.motion_planner.plan_pick_sequence(
-                pos["x"], pos["y"], pos["z"]
-            )
+            obj_x, obj_y, obj_z = pos["x"], pos["y"], pos["z"]
+            approach_height = 0.1  # 10cm above object
             
-            result = self.motion_planner.execute_waypoint_sequence(pick_waypoints)
-            
-            if result == PlanningResult.SUCCESS:
-                return {
-                    "result": ActionResult.SUCCESS,
-                    "message": f"Successfully picked up {object_name}"
-                }
-            else:
+            # STEP 1: Open gripper
+            print("🤏 Opening gripper...")
+            gripper_result = self.motion_planner.control_gripper(self.motion_planner.gripper_open_width)
+            if gripper_result != PlanningResult.SUCCESS:
                 return {
                     "result": ActionResult.MOTION_FAILED,
-                    "message": f"Pick failed: {result}"
+                    "message": "Failed to open gripper before pick"
                 }
-                
+            
+            # STEP 2: Move to approach position (above object)
+            print(f"🎯 Approaching {object_name}...")
+            approach_result = self.motion_planner.move_to_coordinates(
+                obj_x, obj_y, obj_z + approach_height
+            )
+            if approach_result != PlanningResult.SUCCESS:
+                return {
+                    "result": ActionResult.MOTION_FAILED,
+                    "message": "Failed to approach object"
+                }
+            
+            # STEP 3: Move down to grasp position (at object level)
+            print(f"⬇️ Moving to grasp {object_name}...")
+            grasp_move_result = self.motion_planner.move_to_coordinates(
+                obj_x, obj_y, obj_z
+            )
+            if grasp_move_result != PlanningResult.SUCCESS:
+                return {
+                    "result": ActionResult.MOTION_FAILED,
+                    "message": "Failed to move to grasp position"
+                }
+            
+            # STEP 4: Close gripper to grasp object
+            print("🤏 Closing gripper to grasp object...")
+            grasp_result = self.motion_planner.control_gripper(self.motion_planner.gripper_closed_width)
+            if grasp_result != PlanningResult.SUCCESS:
+                return {
+                    "result": ActionResult.MOTION_FAILED,
+                    "message": "Failed to close gripper on object"
+                }
+            
+            # STEP 5: Lift object back up
+            print(f"⬆️ Lifting {object_name}...")
+            lift_result = self.motion_planner.move_to_coordinates(
+                obj_x, obj_y, obj_z + approach_height
+            )
+            if lift_result != PlanningResult.SUCCESS:
+                return {
+                    "result": ActionResult.MOTION_FAILED,
+                    "message": "Failed to lift object after grasping"
+                }
+            
+            return {
+                "result": ActionResult.SUCCESS,
+                "message": f"Successfully picked up {object_name}"
+            }
+            
         except Exception as e:
             return {
                 "result": ActionResult.FAILED,
@@ -129,36 +162,44 @@ class ActionLibrary:
             }
     
     def execute_place(self, x: float, y: float, z: float) -> Dict[str, any]:
-        """
-        Execute PLACE action
-        
-        Args:
-            x, y, z: Target coordinates
-            
-        Returns:
-            Dict with result info
-        """
+        """Execute PLACE action with gripper control"""
         try:
-            # Create place sequence (approach, place, retreat)
+            # 1. Move to place location (approach, place, retreat)
+            print(f"📦 Moving to place location ({x:.3f}, {y:.3f}, {z:.3f})...")
             place_waypoints = [
                 (x, y, z + 0.1),  # Approach point
                 (x, y, z),        # Place point  
-                (x, y, z + 0.1)   # Retreat point
             ]
             
             result = self.motion_planner.execute_waypoint_sequence(place_waypoints)
-            
-            if result == PlanningResult.SUCCESS:
-                return {
-                    "result": ActionResult.SUCCESS,
-                    "message": f"Placed object at ({x:.3f}, {y:.3f}, {z:.3f})"
-                }
-            else:
+            if result != PlanningResult.SUCCESS:
                 return {
                     "result": ActionResult.MOTION_FAILED,
-                    "message": f"Place failed: {result}"
+                    "message": f"Place motion failed: {result}"
                 }
-                
+            
+            # 2. Open gripper to release object
+            print("🤏 Opening gripper to release...")
+            release_result = self.motion_planner.open_gripper()
+            if release_result != PlanningResult.SUCCESS:
+                return {
+                    "result": ActionResult.MOTION_FAILED,
+                    "message": "Failed to open gripper to release object"
+                }
+            
+            # 3. Retreat from place location
+            print("⬆️ Retreating from place location...")
+            retreat_result = self.motion_planner.move_to_coordinates(x, y, z + 0.1)
+            if retreat_result != PlanningResult.SUCCESS:
+                # Not critical if retreat fails
+                print("⚠️ Retreat motion had issues, but object was placed")
+            
+            print(f"✅ Successfully placed object at ({x:.3f}, {y:.3f}, {z:.3f})")
+            return {
+                "result": ActionResult.SUCCESS,
+                "message": f"Placed object at ({x:.3f}, {y:.3f}, {z:.3f})"
+            }
+            
         except Exception as e:
             return {
                 "result": ActionResult.FAILED,
@@ -274,6 +315,36 @@ class ActionLibrary:
     def get_object_info(self, object_name: str) -> Optional[Dict]:
         """Get detailed info about an object"""
         return self._find_object(object_name)
+        
+    def execute_gripper(self, target_width: float) -> Dict[str, any]:
+        """Execute GRIPPER action with specified width"""
+        try:
+            # Determine action description for logging
+            if target_width >= 0.080:
+                action_desc = "opened"
+            elif target_width <= 0.010:
+                action_desc = "closed"
+            else:
+                action_desc = f"set to {target_width:.3f}m width"
+            
+            result = self.motion_planner.control_gripper(target_width)
+            
+            if result == PlanningResult.SUCCESS:
+                return {
+                    "result": ActionResult.SUCCESS,
+                    "message": f"Gripper {action_desc} successfully"
+                }
+            else:
+                return {
+                    "result": ActionResult.MOTION_FAILED,
+                    "message": f"Failed to control gripper: {result}"
+                }
+        except Exception as e:
+            return {
+                "result": ActionResult.FAILED,
+                "message": f"Gripper control error: {str(e)}"
+            }
+
 
 
 # Test the Action Library
