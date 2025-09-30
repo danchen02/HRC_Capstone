@@ -62,8 +62,8 @@ class MotionPlanner(Node):
         ]
         
         # Planning constraints and tolerances
-        self.position_tolerance = 0.01  # 1cm tolerance
-        self.orientation_tolerance = 0.1  # radians
+        self.position_tolerance = 0.005  # 5mm tolerance
+        self.orientation_tolerance = 0.05  # radians
         self.joint_tolerance = 0.01  # radians
 
         # TF listener for finding end-effector pos

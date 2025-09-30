@@ -49,3 +49,9 @@ Gripper sim
 ros2 launch ur_robot_driver ur3e.launch.py robot_ip:=xxx.xxx.xxx.xxx use_fake_hardware:=true launch_rviz:=false
 ros2 launch ur_onrobot_control start_robot.launch.py ur_type:=ur3e onrobot_type:=rg2 use_fake_hardware:=true launch_rviz:=false
 ros2 launch ur_onrobot_moveit_config ur_onrobot_moveit.launch.py ur_type:=ur3e onrobot_type:=rg2 moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml
+
+pick up the red cube and place it at 0 0.3 0.05
+
+how many objects are there in the workspace
+
+what would i need to put a nail into wood

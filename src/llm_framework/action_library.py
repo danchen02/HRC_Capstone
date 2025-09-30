@@ -97,7 +97,7 @@ class ActionLibrary:
             
             pos = object_info["position"]
             obj_x, obj_y, obj_z = pos["x"], pos["y"], pos["z"]
-            approach_height = 0.1  # 10cm above object
+            approach_height = 0.05  # 5cm above object
             
             # STEP 1: Open gripper
             print("🤏 Opening gripper...")
@@ -167,7 +167,7 @@ class ActionLibrary:
             # 1. Move to place location (approach, place, retreat)
             print(f"📦 Moving to place location ({x:.3f}, {y:.3f}, {z:.3f})...")
             place_waypoints = [
-                (x, y, z + 0.1),  # Approach point
+                (x, y, z + 0.05),  # Approach point
                 (x, y, z),        # Place point  
             ]
             
@@ -189,7 +189,7 @@ class ActionLibrary:
             
             # 3. Retreat from place location
             print("⬆️ Retreating from place location...")
-            retreat_result = self.motion_planner.move_to_coordinates(x, y, z + 0.1)
+            retreat_result = self.motion_planner.move_to_coordinates(x, y, z + 0.05)
             if retreat_result != PlanningResult.SUCCESS:
                 # Not critical if retreat fails
                 print("⚠️ Retreat motion had issues, but object was placed")

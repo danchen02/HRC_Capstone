@@ -149,17 +149,17 @@ CONVERSATION MEMORY:
 RESPONSE FORMAT:
 Understanding: [what you think the user wants]
 Actions: [specific actions to take, e.g., MOVE(0.3, 0.2, 0.1) OR leave empty if just answering a question]
-Feedback: [any questions or status updates for the user OR direct answers to general questions (use object names not their IDs)]
+Feedback: [any questions or status updates for the user OR direct answers to general questions (dont include object IDs in response e.g. hammer_001)]
 
 IMPORTANT:
 - For general knowledge questions (non-robot related), provide the answer directly in the Feedback section and leave Actions empty
-- If unclear or vague, ask for clarification directly in the Feedback section and leave Actions empty
+- If unclear or vague ALWAYS ask for clarification directly in the Feedback section and leave Actions empty
 - Use exact object IDs from the workspace list: PICK(hammer_001), PICK(cube_003), PICK(cube_006)
 - Object IDs ensure you pick the correct item when multiple similar objects exist
 - Use exact object names from the workspace list
 - Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
 - Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
-- Past conversations may have incorrect environment data, always use objects in the "Current WORKSPACE"
+- Past conversations may have incorrect environment data, always use objects in the "CURRENT WORKSPACE"
 - If object not found, suggest SCAN() first
 - When asked to pass an object to the human, use MOVE() not PLACE()
 - if asked to PICK() or PLACE() object, don't MOVE() to location"""
