@@ -45,7 +45,7 @@ objects:
     position:
       x: 0.3
       y: 0.0
-      z: 0.11
+      z: 0.03
     orientation:
       roll: 0.0
       pitch: 0.0

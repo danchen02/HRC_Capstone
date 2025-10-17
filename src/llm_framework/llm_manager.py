@@ -157,7 +157,7 @@ IMPORTANT:
 - Use exact object IDs from the workspace list: PICK(hammer_001), PICK(cube_003), PICK(cube_006)
 - Object IDs ensure you pick the correct item when multiple similar objects exist
 - Use exact object names from the workspace list
-- Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0 to 1.0 for z)
+- Coordinates should be within robot reach (-0.8 to 0.8 for x,y, 0.01 to 1.0 for z)
 - Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
 - Past conversations may have incorrect environment data, always use objects in the "CURRENT WORKSPACE"
 - If object not found, suggest SCAN() first

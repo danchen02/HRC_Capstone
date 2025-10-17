@@ -30,22 +30,34 @@ Launch with Gazebo
 
 
 
-python src/robot_control/motion_planner.py
+
 
 
 python src/main.py
 
 
 
-real robot
-ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur3e robot_ip:=192.168.0.191
+# real robot
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur3e robot_ip:=192.168.0.103
+ros2 launch ur_onrobot_control start_robot.launch.py ur_type:=ur3e onrobot_type:=rg2 robot_ip:=192.168.0.103 launch_rviz:=false
 
 ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur3e launch_rviz:=true moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml 
+ros2 launch ur_onrobot_moveit_config ur_onrobot_moveit.launch.py ur_type:=ur3e onrobot_type:=rg2 moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml
 
 
 
 
-Gripper sim
+ip addr show
+# Remove the current IP
+sudo ip addr del 192.168.0.193/24 dev enx00e04c682c73
+
+# Add the new IP
+sudo ip addr add 192.168.0.101/24 dev enx00e04c682c73
+
+ip addr show enxa0cec8efd19b
+
+
+# Gripper sim
 ros2 launch ur_robot_driver ur3e.launch.py robot_ip:=xxx.xxx.xxx.xxx use_fake_hardware:=true launch_rviz:=false
 ros2 launch ur_onrobot_control start_robot.launch.py ur_type:=ur3e onrobot_type:=rg2 use_fake_hardware:=true launch_rviz:=false
 ros2 launch ur_onrobot_moveit_config ur_onrobot_moveit.launch.py ur_type:=ur3e onrobot_type:=rg2 moveit_joint_limits_file:=/home/dan/ws_moveit/install/ur3_joints_limited/share/ur3_joints_limited/config/ur3/joint_limits.yaml

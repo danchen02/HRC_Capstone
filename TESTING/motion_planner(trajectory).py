@@ -24,9 +24,6 @@ from enum import Enum
 import tf2_ros
 from control_msgs.action import FollowJointTrajectory
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from std_msgs.msg import Float64MultiArray
-import time
-from sensor_msgs.msg import JointState
 
 class PlanningResult(Enum):
     """Enumeration for planning results"""
@@ -73,98 +70,70 @@ class MotionPlanner(Node):
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
-        
-        # Gripper pulisher
-        self.gripper_pub = self.create_publisher(
-            Float64MultiArray,
-            '/finger_width_controller/commands',
-            10
+        # Create gripper action client with correct topic
+        self._gripper_client = ActionClient(
+            self, 
+            FollowJointTrajectory, 
+            '/finger_width_trajectory_controller/follow_joint_trajectory'
         )
-     
+        
         # Correct gripper parameters from MoveIt config
         self.gripper_open_width = 0.100   # From MoveIt: open state
         self.gripper_closed_width = 0.0   # From MoveIt: closed state
 
-        self._latest_joint_state = None
-        self.joint_state_sub = self.create_subscription(
-            JointState, '/joint_states', 
-            lambda msg: setattr(self, '_latest_joint_state', msg), 10
-)
-
-    def control_gripper(self, target_width: float, timeout: float = 10.0) -> PlanningResult:
-        """Control gripper and wait until it reaches target or stops moving"""
+    def control_gripper(self, target_width: float, duration: float = 2.0) -> PlanningResult:
+        """Control gripper with correct joint name"""
         try:
             target_width = max(0.0, min(target_width, self.gripper_open_width))
-            tolerance = 0.005
             
-            if not self._latest_joint_state:
-                time.sleep(0.2)
+            self.get_logger().info(f"Controlling gripper to width: {target_width}")
             
-            current = self._get_gripper_width()
-            if current is not None and abs(current - target_width) < tolerance:
+            if not self._gripper_client.wait_for_server(timeout_sec=5.0):
+                self.get_logger().error("Gripper action server not available!")
+                return PlanningResult.GOAL_NOT_ACCEPTED
+            
+            # Create trajectory goal with CORRECT joint name
+            goal = FollowJointTrajectory.Goal()
+            goal.trajectory = JointTrajectory()
+            goal.trajectory.header.stamp = self.get_clock().now().to_msg()
+            goal.trajectory.joint_names = ['finger_width']  # FIXED: was 'finger_width_joint'
+            
+            point = JointTrajectoryPoint()
+            point.positions = [target_width]
+            point.velocities = [0.0]
+            point.time_from_start.sec = int(duration)
+            point.time_from_start.nanosec = int((duration - int(duration)) * 1e9)
+            
+            goal.trajectory.points = [point]
+            
+            self.get_logger().info(f"Sending goal: joint={goal.trajectory.joint_names}, pos={point.positions}")
+            
+            # Send goal
+            future = self._gripper_client.send_goal_async(goal)
+            rclpy.spin_until_future_complete(self, future)
+            
+            goal_handle = future.result()
+            if not goal_handle.accepted:
+                self.get_logger().error("Gripper goal not accepted")
+                return PlanningResult.GOAL_NOT_ACCEPTED
+            
+            self.get_logger().info("Goal accepted! Waiting for completion...")
+            
+            result_future = goal_handle.get_result_async()
+            rclpy.spin_until_future_complete(self, result_future)
+            
+            result = result_future.result()
+            if result.result.error_code == 0:  # Success
+                self.get_logger().info("Gripper movement completed successfully")
                 return PlanningResult.SUCCESS
-            
-            msg = Float64MultiArray()
-            msg.data = [target_width]
-            self.gripper_pub.publish(msg)
-            
-            start_time = time.time()
-            prev_width = current
-            stationary_count = 0
-            
-            while (time.time() - start_time) < timeout:
-                current = self._get_gripper_width()
+            else:
+                self.get_logger().error(f"Gripper execution failed: {result.result.error_code}")
+                return PlanningResult.EXECUTION_FAILED
                 
-                if current is not None:
-                    # Check if reached target
-                    if abs(current - target_width) < tolerance:
-                        self.get_logger().info(f"Reached target: {current:.4f}m")
-                        return PlanningResult.SUCCESS
-                    
-                    # Check if stopped moving (gripping or at limit)
-                    if abs(current - prev_width) < 0.0005:
-                        stationary_count += 1
-                        if stationary_count >= 20:  # 1 second stationary
-                            # Send hold command
-                            msg = Float64MultiArray()
-                            msg.data = [current]
-                            self.gripper_pub.publish(msg)
-                            self.get_logger().info(f"Gripper stopped at: {current:.4f}m")
-                            return PlanningResult.SUCCESS
-                    else:
-                        stationary_count = 0
-                    
-                    prev_width = current
-                
-                time.sleep(0.05)
-            
-            # Timeout fallback
-            if current is not None:
-                msg = Float64MultiArray()
-                msg.data = [current]
-                self.gripper_pub.publish(msg)
-            return PlanningResult.SUCCESS
-                    
         except Exception as e:
             self.get_logger().error(f"Gripper control failed: {e}")
             return PlanningResult.EXECUTION_FAILED
-
-    def _get_gripper_width(self) -> Optional[float]:
-        """Get current gripper width from joint_states"""
-        if self._latest_joint_state:
-            try:
-                idx = self._latest_joint_state.name.index('finger_width')
-                width = self._latest_joint_state.position[idx]
-                # DEBUG: Remove after testing
-                self.get_logger().info(f"DEBUG: Found finger_width at index {idx}, value: {width:.4f}m")
-                return width
-            except (ValueError, IndexError) as e:
-                self.get_logger().warn(f"DEBUG: Could not find finger_width: {e}")
-                pass
-        else:
-            self.get_logger().warn("DEBUG: No joint state available yet")
-        return None
-            
+        
     def open_gripper(self) -> PlanningResult:
         """Open gripper fully"""
         return self.control_gripper(self.gripper_open_width)
@@ -394,7 +363,7 @@ class MotionPlanner(Node):
             return False
         if not (-0.8 <= y <= 0.8):
             return False
-        if not (0.01 <= z <= 1.0):  # Prevent going below table or too high
+        if not (0.0 <= z <= 1.0):  # Prevent going below table or too high
             return False
         return True
     
