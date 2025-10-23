@@ -359,16 +359,23 @@ class MotionPlanner(Node):
         try:
             # Send goal
             future = self._action_client.send_goal_async(goal_msg)
-            rclpy.spin_until_future_complete(self, future)
+            
+            # Wait for goal to be accepted (background executor handles spinning)
+            while not future.done():
+                time.sleep(0.01)
             
             goal_handle = future.result()
+            
             if not goal_handle.accepted:
                 self.get_logger().error("Goal not accepted by MoveIt")
                 return PlanningResult.GOAL_NOT_ACCEPTED
             
             # Wait for result
             result_future = goal_handle.get_result_async()
-            rclpy.spin_until_future_complete(self, result_future)
+            
+            # Wait for execution to complete (background executor handles spinning)
+            while not result_future.done():
+                time.sleep(0.01)
             
             result = result_future.result()
             
