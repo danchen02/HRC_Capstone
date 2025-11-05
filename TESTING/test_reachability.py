@@ -47,9 +47,9 @@ class EnhancedMotionPlanner(MotionPlanner):
         # Define workspace bounds for UR3e - more realistic bounds
         # UR3e has ~500mm reach, but accounting for mounting and gripper
         success = self.reach_map.generate_map(
-            x_range=(-0.4, 0.4),   # 80cm range in X
-            y_range=(-0.4, 0.4),   # 80cm range in Y  
-            z_range=(0.1, 0.5),    # 10cm to 50cm height (above table)
+            x_range=(-0.5, 0.5),   # 80cm range in X
+            y_range=(-0.5, 0.5),   # 80cm range in Y  
+            z_range=(0.01, 0.5),    # 10cm to 50cm height (above table)
             save_file="reachability_map_ur3e_rg2.pkl"
         )
         

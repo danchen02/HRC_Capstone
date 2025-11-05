@@ -21,7 +21,7 @@ class ActionResult(Enum):
     OBJECT_NOT_FOUND = "object_not_found"
     MOTION_FAILED = "motion_failed"
     INVALID_PARAMETERS = "invalid_parameters"
-
+    OUT_OF_REACH = "out_of_reach"
 
 class ActionLibrary:
     """
@@ -62,6 +62,26 @@ class ActionLibrary:
             Dict with result info
         """
         try:
+            if hasattr(self.motion_planner, 'reach_map'):
+                is_reachable, closest = self.motion_planner.reach_map.is_reachable(x, y, z)
+                
+                if not is_reachable:
+                    if closest:
+                        return {
+                            "result": ActionResult.OUT_OF_REACH,
+                            "message": (
+                                f"Target ({x:.2f}, {y:.2f}, {z:.2f}) is out of reach. "
+                                f"Closest reachable point: "
+                                f"({closest[0]:.2f}, {closest[1]:.2f}, {closest[2]:.2f})"
+                            ),
+                            "suggested_position": closest
+                        }
+                    else:
+                        return {
+                            "result": ActionResult.OUT_OF_REACH,
+                            "message": f"Target ({x:.2f}, {y:.2f}, {z:.2f}) is completely unreachable"
+                        }
+            
             result = self.motion_planner.move_to_coordinates(x, y, z)
             
             if result == PlanningResult.SUCCESS:
@@ -98,6 +118,28 @@ class ActionLibrary:
             pos = object_info["position"]
             obj_x, obj_y, obj_z = pos["x"], pos["y"], pos["z"]
             approach_height = 0.05  # 5cm above object
+
+            if hasattr(self.motion_planner, 'reach_map'):
+                is_reachable, closest = self.motion_planner.reach_map.is_reachable(
+                    obj_x, obj_y, obj_z
+                )
+                
+                if not is_reachable:
+                    if closest:
+                        return {
+                            "result": ActionResult.OUT_OF_REACH,
+                            "message": (
+                                f"Object '{object_name}' at ({obj_x:.2f}, {obj_y:.2f}, {obj_z:.2f}) "
+                                f"is out of reach. Closest reachable point: "
+                                f"({closest[0]:.2f}, {closest[1]:.2f}, {closest[2]:.2f})"
+                            ),
+                            "suggested_position": closest
+                        }
+                    else:
+                        return {
+                            "result": ActionResult.OUT_OF_REACH,
+                            "message": f"Object '{object_name}' is completely unreachable"
+                        }
             
             # STEP 1: Open gripper
             print("🤏 Opening gripper...")
@@ -164,11 +206,31 @@ class ActionLibrary:
     def execute_place(self, x: float, y: float, z: float) -> Dict[str, any]:
         """Execute PLACE action with gripper control"""
         try:
+            if hasattr(self.motion_planner, 'reach_map'):
+                is_reachable, closest = self.motion_planner.reach_map.is_reachable(x, y, z)
+                
+                if not is_reachable:
+                    if closest:
+                        return {
+                            "result": ActionResult.OUT_OF_REACH,
+                            "message": (
+                                f"Place location ({x:.2f}, {y:.2f}, {z:.2f}) is out of reach. "
+                                f"Closest reachable point: "
+                                f"({closest[0]:.2f}, {closest[1]:.2f}, {closest[2]:.2f})"
+                            ),
+                            "suggested_position": closest
+                        }
+                    else:
+                        return {
+                            "result": ActionResult.OUT_OF_REACH,
+                            "message": f"Place location ({x:.2f}, {y:.2f}, {z:.2f}) is completely unreachable"
+                        }
+            
             # 1. Move to place location (approach, place, retreat)
             print(f"📦 Moving to place location ({x:.3f}, {y:.3f}, {z:.3f})...")
             place_waypoints = [
-                (x, y, z + 0.05),  # Approach point
-                (x, y, z),        # Place point  
+                (x, y, z + 0.08),  # Approach point
+                (x, y, z + 0.03),  # Place point  
             ]
             
             result = self.motion_planner.execute_waypoint_sequence(place_waypoints)

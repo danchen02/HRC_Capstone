@@ -27,6 +27,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from std_msgs.msg import Float64MultiArray
 import time
 from sensor_msgs.msg import JointState
+from robot_control.reachability_map import ReachabilityMap
 
 class PlanningResult(Enum):
     """Enumeration for planning results"""
@@ -89,7 +90,20 @@ class MotionPlanner(Node):
         self.joint_state_sub = self.create_subscription(
             JointState, '/joint_states', 
             lambda msg: setattr(self, '_latest_joint_state', msg), 10
-)
+        )
+
+         # Initialize reachability map
+        self.reach_map = ReachabilityMap(self, resolution=0.05)
+        
+        # Try to load existing map
+        map_file = "reachability_map_ur3e_rg2.pkl"
+        if self.reach_map.load_map(map_file):
+            self.get_logger().info("✅ Reachability map loaded successfully")
+        else:
+            self.get_logger().warn(
+                "⚠️  No reachability map found - reachability checks will be skipped. "
+                "Generate one using test_reachability.py"
+            )
 
     def control_gripper(self, target_width: float, timeout: float = 10.0) -> PlanningResult:
         """Control gripper and wait until it reaches target or stops moving"""

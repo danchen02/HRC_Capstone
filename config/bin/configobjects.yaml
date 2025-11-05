@@ -1,0 +1,246 @@
+timestamp: '2025-10-30T04:31:30Z'
+camera_pose:
+  position:
+    x: 0.021881220820098322
+    y: 1.757107792736907
+    z: 0.7588601677333119
+  orientation:
+    x: 0.02845065719875019
+    y: 0.9662570816931435
+    z: -0.25600220690374986
+    w: 0.0008259801560155481
+objects:
+  a_Ar_tag_000:
+    name: a Ar tag
+    description: a photo of a Ar tag
+    category: unknown
+    position:
+      x: -0.2562045535348875
+      y: -0.14977006298669845
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 57.714021366325746
+    dimensions:
+      length: 0.28625299261305753
+      width: 0.17134040241292486
+      height: 0.02934533017450202
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.26762211322784424
+    num_points: 1692
+    ply_file: /home/dan/full_integration/out/scene_objects/object_000_a_Ar_tag.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_Ar_tag_001:
+    name: a Ar tag
+    description: a photo of a Ar tag
+    category: unknown
+    position:
+      x: 0.3389666216905843
+      y: 0.42995484390657185
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 150.98562941729875
+    dimensions:
+      length: 0.2528771099320008
+      width: 0.20602834769463446
+      height: 0.02926591067604356
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.3110034167766571
+    num_points: 1847
+    ply_file: /home/dan/full_integration/out/scene_objects/object_001_a_Ar_tag.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_Ar_tag_002:
+    name: a Ar tag
+    description: a photo of a Ar tag
+    category: unknown
+    position:
+      x: -0.20743148535935732
+      y: 0.431778938492541
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 170.4505954732025
+    dimensions:
+      length: 0.22884774233345986
+      width: 0.16258535328985746
+      height: 0.029935503790443185
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.2779982388019562
+    num_points: 2295
+    ply_file: /home/dan/full_integration/out/scene_objects/object_002_a_Ar_tag.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_Ar_tag_003:
+    name: a Ar tag
+    description: a photo of a Ar tag
+    category: unknown
+    position:
+      x: -0.23911952794920377
+      y: 0.46303014801501446
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 150.44382213211622
+    dimensions:
+      length: 0.11831521062124097
+      width: 0.06748205230180103
+      height: 0.019691063405892995
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.28214403986930847
+    num_points: 303
+    ply_file: /home/dan/full_integration/out/scene_objects/object_003_a_Ar_tag.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_blue_dice_004:
+    name: a blue dice
+    description: a photo of a blue dice
+    category: unknown
+    position:
+      x: 0.4038568839446722
+      y: 0.162650153898633
+      z: 0.060179293064062396
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 132.94189660893295
+    dimensions:
+      length: 0.09340129485884893
+      width: 0.06765765385689823
+      height: 0.028770942582483923
+    properties:
+      graspable: true
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.3904637396335602
+    num_points: 615
+    ply_file: /home/dan/full_integration/out/scene_objects/object_004_a_blue_dice.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_yellow_dice_010:
+    name: a yellow dice
+    description: a photo of a yellow dice
+    category: unknown
+    position:
+      x: 0.19562013453889063
+      y: 0.23367304735151498
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: -172.56824551816555
+    dimensions:
+      length: 0.6642700575952099
+      width: 0.628088579791223
+      height: 0.02998767713468764
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.27476003766059875
+    num_points: 2335
+    ply_file: /home/dan/full_integration/out/scene_objects/object_010_a_yellow_dice.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_Ar_tag_011:
+    name: a Ar tag
+    description: a photo of a Ar tag
+    category: unknown
+    position:
+      x: 0.25720215607170416
+      y: -0.15059099261601702
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: -167.53569233160954
+    dimensions:
+      length: 0.3298486021658558
+      width: 0.29357587200078006
+      height: 0.02931888325903409
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.2989228367805481
+    num_points: 3307
+    ply_file: /home/dan/full_integration/out/scene_objects/object_011_a_Ar_tag.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_red_dice_012:
+    name: a red dice
+    description: a photo of a red dice
+    category: unknown
+    position:
+      x: 0.09476691071519461
+      y: 0.23010971300980557
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: -156.21769194958665
+    dimensions:
+      length: 0.06982621046354483
+      width: 0.027703681742719873
+      height: 0.029927196903886233
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.27624067664146423
+    num_points: 468
+    ply_file: /home/dan/full_integration/out/scene_objects/object_012_a_red_dice.ply
+    last_seen: '2025-10-30T04:31:30Z'
+  a_Ar_tag_019:
+    name: a Ar tag
+    description: a photo of a Ar tag
+    category: unknown
+    position:
+      x: 0.3034933351509788
+      y: 0.445175517581471
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: -155.35735172299022
+    dimensions:
+      length: 0.09692606160555539
+      width: 0.053896582776499585
+      height: 0.01931323988656264
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.3089393675327301
+    num_points: 198
+    ply_file: /home/dan/full_integration/out/scene_objects/object_019_a_Ar_tag.ply
+    last_seen: '2025-10-30T04:31:30Z'

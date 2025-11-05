@@ -21,7 +21,7 @@ class ReachabilityMap:
     Generates a 3D grid and tests IK feasibility for each point.
     """
     
-    def __init__(self, motion_planner, resolution=0.05):
+    def __init__(self, motion_planner, resolution=0.02):
         """
         Initialize reachability map
         
@@ -240,6 +240,54 @@ class ReachabilityMap:
         
         return closest_point, False
     
+    def is_reachable(self, x: float, y: float, z: float, tolerance: float = 0.03) -> tuple[bool, Optional[tuple[float, float, float]]]:
+        """
+        Check if a point is reachable within tolerance
+        
+        Args:
+            x, y, z: Target coordinates
+            tolerance: Maximum acceptable distance (default 3cm)
+            
+        Returns:
+            (is_reachable, closest_point)
+            - is_reachable: True if within tolerance of a reachable point
+            - closest_point: Closest reachable point if target unreachable, None if reachable
+        """
+        if not self.reachability_grid:
+            # No map loaded - can't validate
+            self.motion_planner.get_logger().warn(
+                "Reachability map not loaded - cannot validate coordinates"
+            )
+            return True, None  # Assume reachable if no map
+        
+        closest, is_exact = self.find_closest_reachable(x, y, z)
+        
+        if closest is None:
+            # No reachable points found at all
+            return False, None
+        
+        if is_exact:
+            # Target is exactly on a reachable grid point
+            return True, None
+        
+        # Calculate distance to closest reachable point
+        distance = math.sqrt(
+            (x - closest[0])**2 + 
+            (y - closest[1])**2 + 
+            (z - closest[2])**2
+        )
+        
+        is_reachable = distance <= tolerance
+        
+        if not is_reachable:
+            self.motion_planner.get_logger().info(
+                f"Target ({x:.3f}, {y:.3f}, {z:.3f}) out of reach. "
+                f"Closest point ({closest[0]:.3f}, {closest[1]:.3f}, {closest[2]:.3f}) "
+                f"is {distance:.3f}m away (tolerance: {tolerance:.3f}m)"
+            )
+        
+        return is_reachable, closest if not is_reachable else None    
+    
     def _save_map(self, filename: str):
         """Save reachability map to file"""
         try:
@@ -294,3 +342,117 @@ class ReachabilityMap:
                 f"Failed to load map: {e}"
             )
             return False
+        
+
+def main():
+    """Generate reachability map for UR3e with RG2 gripper"""
+    import sys
+    import os
+    
+    # Add src directory to path if not already there
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.dirname(current_dir)  # Go up one level to src/
+    if src_dir not in sys.path:
+        sys.path.insert(0, src_dir)
+        print(f"Added to path: {src_dir}")
+    
+    print("\n" + "="*70)
+    print("🗺️  REACHABILITY MAP GENERATOR")
+    print("="*70)
+    print("\nThis will generate a reachability map for the UR3e + RG2 gripper.")
+    print("⚠️  This process takes 5-10 minutes depending on resolution.")
+    print("\nRequirements:")
+    print("  1. Robot system launched (fake or real)")
+    print("  2. MoveIt launched")
+    print("  3. Controllers active")
+    print("\nPress Enter when ready, or Ctrl+C to cancel...")
+    
+    try:
+        input()
+    except KeyboardInterrupt:
+        print("\n\nCancelled.")
+        return
+    
+    # Initialize ROS2
+    rclpy.init()
+    
+    try:
+        # Import here to avoid circular dependency
+        from robot_control.motion_planner import MotionPlanner
+        
+        # Create motion planner (needed for IK service)
+        print("\n📡 Connecting to robot system...")
+        planner = MotionPlanner(group_name="ur_onrobot_manipulator")
+        
+        # Create reachability map
+        print("🗺️  Initializing reachability map...")
+        reach_map = ReachabilityMap(planner, resolution=0.02)  # 2cm resolution
+        
+        # Prompt for resolution
+        print(f"\nCurrent resolution: {reach_map.resolution}m (2cm)")
+        response = input("Change resolution? (y/n): ").strip().lower()
+        
+        if response == 'y':
+            try:
+                new_res = float(input("Enter resolution in meters (e.g., 0.03 for 3cm): "))
+                reach_map.resolution = new_res
+                print(f"✓ Resolution set to {new_res}m")
+            except ValueError:
+                print("Invalid input, keeping default 0.05m")
+        
+        # Define workspace bounds for UR3e
+        # UR3e has ~500mm reach, accounting for mounting and gripper
+        x_range = (-0.5, 0.5)   # 80cm range in X
+        y_range = (-0.5, 0.5)   # 80cm range in Y  
+        z_range = (0.01, 0.5)    # 10cm to 50cm height (above table)
+        
+        print(f"\nWorkspace bounds:")
+        print(f"  X: {x_range[0]}m to {x_range[1]}m")
+        print(f"  Y: {y_range[0]}m to {y_range[1]}m")
+        print(f"  Z: {z_range[0]}m to {z_range[1]}m")
+        
+        response = input("\nProceed with generation? (y/n): ").strip().lower()
+        
+        if response != 'y':
+            print("Cancelled.")
+            return
+        
+        # Generate map
+        print("\n🚀 Starting generation...\n")
+        success = reach_map.generate_map(
+            x_range=x_range,
+            y_range=y_range,
+            z_range=z_range,
+            save_file="reachability_map_ur3e_rg2.pkl"
+        )
+        
+        if success:
+            print("\n" + "="*70)
+            print("✅ REACHABILITY MAP GENERATED SUCCESSFULLY")
+            print("="*70)
+            print(f"\nMap saved to: reachability_map_ur3e_rg2.pkl")
+            print(f"Resolution: {reach_map.resolution}m")
+            print(f"Reachable points: {reach_map.reachable_points}/{reach_map.total_points}")
+            coverage = (reach_map.reachable_points / reach_map.total_points * 100) if reach_map.total_points > 0 else 0
+            print(f"Coverage: {coverage:.1f}%")
+            print("\nYou can now use this map in your main system!")
+        else:
+            print("\n❌ Map generation failed.")
+            sys.exit(1)
+        
+    except KeyboardInterrupt:
+        print("\n\n👋 Generation interrupted by user")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    finally:
+        if 'planner' in locals():
+            planner.destroy_node()
+        rclpy.shutdown()
+        print("\n🏁 Complete")
+
+
+if __name__ == '__main__':
+    main()
