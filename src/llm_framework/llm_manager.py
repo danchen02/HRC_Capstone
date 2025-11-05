@@ -45,7 +45,7 @@ class LLMManager:
         self.client = Groq(api_key=self.api_key)
         
         # Use single model
-        self.model_id = "llama-3.3-70b-versatile"
+        self.model_id = "moonshotai/kimi-k2-instruct-0905"
         
         # Object database
         self.objects_file = objects_file
@@ -62,7 +62,7 @@ class LLMManager:
         self.conversation_history: List[ConversationTurn] = []
         self.max_history = 5
         
-        print(f"✅ LLM Manager initialized with llama-3.3-70b-versatile")
+        print(f"✅ LLM Manager initialized with kimi-k2-0905")
         print(f"📁 Loaded {len(self.objects_data.get('objects', {}))} objects from database")
     
     def load_objects(self):
@@ -272,9 +272,6 @@ IMPORTANT:
                 elif current_section == 'feedback':
                     feedback += " " + line
         
-        # Fallback: extract actions from anywhere in response if not found
-        if not actions:
-            actions = self.extract_actions(response_text)
         
         return {
             'understanding': understanding.strip(),

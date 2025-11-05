@@ -1,70 +1,171 @@
+#!/usr/bin/env python3
+"""
+Simple LLM Evaluator for Section 5.1
+Tests models on robot control tasks using actual system structure
+"""
+
 import time
+import yaml
 import json
 import pandas as pd
+import re
 from groq import Groq
 from config import Config, get_api_key
 
-class LLMEvaluator:
-    """Simple LLM evaluator for cobot control"""
+class SimpleLLMEvaluator:
+    """Simple evaluator matching your actual system"""
     
-    def __init__(self):
+    def __init__(self, objects_file="config/objects.yaml"):
         api_key = get_api_key()
         if not api_key:
-            raise ValueError("No API key found")
+            raise ValueError("No API key found in .env")
         
         self.client = Groq(api_key=api_key)
+        self.objects_file = objects_file
+        self.objects_data = {}
         self.results = []
         
-        # Robot control prompt
-        self.system_prompt = """You are controlling a UR3 robot arm. 
+        # Load objects like the real system does
+        self.load_objects()
 
-Available actions:
-- MOVE(x, y, z): Move to position
-- PICK(object): Pick up object  
-- PLACE(object, x, y, z): Place object
-- SCAN(): Scan workspace
-- WAIT(seconds): Wait
-- QUERY(question): Ask for clarification
-
-Format:
-Understanding: [what you think the user wants]
-Actions: [list of actions]
-Feedback: [any questions or status]"""
-
-    def get_test_scenarios(self, count=14):
-        """Get test scenarios"""
-        scenarios = [
-            ("clear_001", "Pick up the red block", ["SCAN", "PICK"]),
-            ("clear_002", "Move to position x=0.3, y=0.2, z=0.1", ["MOVE"]),
-            ("clear_003", "Scan the workspace", ["SCAN"]),
-            ("ambiguous_001", "Pick up that thing over there", ["QUERY", "SCAN"]),
-            ("ambiguous_002", "Move it to the other side", ["QUERY"]),
-            ("multi_001", "Pick up blue cube and place on table", ["SCAN", "PICK", "PLACE"]),
-            ("multi_002", "Scan then pick up hammer and move to 0.4, 0.3, 0.2", ["SCAN", "PICK", "PLACE"]),
-            ("multi_003", "Move to home, scan, then pick up red objects", ["MOVE", "SCAN", "PICK"]),
-            ("error_001", "Pick up the purple elephant", ["SCAN", "QUERY"]),
-            ("error_002", "Move to position x=10, y=10, z=10", ["QUERY"]),
-            ("error_003", "Make me a sandwich", ["QUERY"]),
-            ("contextual_001", "Hand me the wrench", ["SCAN", "PICK", "MOVE"]),
-            ("contextual_002", "The blue part is in the way", ["SCAN", "PICK", "PLACE", "QUERY"]),
-            ("contextual_003", "Put the object somewhere safe", ["QUERY", "SCAN"]),
-        ]
-        return scenarios[:count]
-    
-    def test_model(self, model_name, command, expected_actions):
-        """Test single model on single command"""
+        # Robot control settings
+        self.max_tokens = 512
+        self.temperature = 0.3
+        
+    def load_objects(self):
+        """Load objects from YAML like llm_manager.py does"""
         try:
-            start_time = time.time()
+            with open(self.objects_file, 'r') as f:
+                self.objects_data = yaml.safe_load(f)
+            print(f"✅ Loaded {len(self.objects_data.get('objects', {}))} objects from {self.objects_file}")
+        except Exception as e:
+            print(f"⚠️  Could not load objects: {e}")
+            self.objects_data = {"objects": {}}
+    
+    
+    def get_objects_context(self) -> str:
+        """Create context string about available objects with IDs"""
+        if not self.objects_data.get('objects'):
+            return "No objects currently detected in workspace."
+        
+        context = "Current objects in workspace:\n"
+        for obj_id, obj_info in self.objects_data['objects'].items():
+            name = obj_info.get('name', obj_id)
+            desc = obj_info.get('description', 'no description')
+            pos = obj_info.get('position', {})
+            graspable = obj_info.get('properties', {}).get('graspable', True)
             
-            # Get model ID
+            # Include the object ID for precise targeting
+            context += f"- {obj_id} ({name}): {desc}"
+            if pos:
+                context += f" at ({pos.get('x', 0):.2f}, {pos.get('y', 0):.2f}, {pos.get('z', 0):.2f})"
+            if not graspable:
+                context += " (not graspable)"
+            context += "\n"
+        
+        return context
+    
+    def create_system_prompt(self):
+        """Create system prompt matching your actual llm_manager.py"""
+        objects_context = self.get_objects_context()
+        
+        return f"""You are a UR3 robot arm in a collaborative workspace.
+
+AVAILABLE ACTIONS (leave blank if command is ambiguous):
+- MOVE(x, y, z): Move end-effector to coordinates
+- PICK(object_ID): Pick up specified object, dont move to object. 
+- PLACE(x, y, z): Place held object at coordinates, if location not fully specified, place on floor
+- HOME(): Move robot to home position (safe starting position)
+- SCAN(): Scan workspace to update object detection
+- WAIT(seconds): Wait for specified time
+- GRIPPER(open/close): Control gripper (or GRIPPER(0.05) for specific width) 
+
+CURRENT WORKSPACE (contains object information):
+{objects_context}
+
+RESPONSE FORMAT:
+Understanding: [what you think the user wants]
+Actions: [specific actions to take, e.g., MOVE(0.3, 0.2, 0.1) OR leave empty if just answering a question]
+Feedback: [any questions or status updates for the user OR direct answers to general questions (dont include object IDs in response e.g. hammer_001)]
+
+IMPORTANT:
+- For general knowledge questions (non-robot related), provide the answer directly in the Feedback section and leave Actions empty
+- If unclear or vague ALWAYS ask for clarification directly in the Feedback section and leave Actions empty
+- Use exact object IDs from the workspace list: PICK(hammer_001), PICK(cube_003), PICK(cube_006)
+- Object IDs ensure you pick the correct item when multiple similar objects exist
+- Use exact object names from the workspace list
+- Coordinates should be within robot reach (-0.5 to 0.5 for x,y, 0.01 to 1.0 for z)
+- if asked to PICK() or PLACE() object, don't MOVE() to location"""
+    
+    def get_test_scenarios(self):
+        """Simple test scenarios for Section 5.1"""
+        return [
+            # Clear commands
+            ("clear", "Pick up the red cube", ["PICK"], False),
+            ("clear", "Go to home position", ["HOME"], False),
+            ("clear", "Move to position 1.2, 0.6, 0.1", [], False),
+            
+            # Ambiguous - should ask for clarification
+            ("ambiguous", "Pick up that thing over there", [], True),
+            ("ambiguous", "Move it to the other side", [], True),
+            ("ambiguous", "Pick up the cube", [], True),
+            
+            # Multi-step
+            ("multi-step", "Pick up the blue cube and place it at 0.3, 0.4, 0.1", ["PICK", "PLACE"], False),
+            ("multi-step", "Scan the workspace then pick up the hammer", ["SCAN", "PICK"], False),
+            
+            # Contextual
+            ("contextual", "What tools are in the workspace?", [], False),
+            ("contextual", "Open the gripper", ["GRIPPER"], False),
+        ]
+    
+    def extract_actions(self, response_text):
+        """Extract actions ONLY from Actions section (not Understanding/Feedback)"""
+        actions = []
+        keywords = ["MOVE", "PICK", "PLACE", "HOME", "SCAN", "WAIT", "GRIPPER"]
+        
+        # Extract only the Actions section
+        actions_section = ""
+        lines = response_text.split('\n')
+        in_actions = False
+        
+        for line in lines:
+            if line.strip().startswith('Actions:'):
+                in_actions = True
+                # Get content after "Actions:" on same line
+                actions_section = line.split('Actions:', 1)[1] if ':' in line else ""
+                continue
+            elif in_actions:
+                # Stop when we hit next section
+                if line.strip().startswith('Understanding:') or line.strip().startswith('Feedback:'):
+                    break
+                actions_section += " " + line
+        
+        # Now search only in actions section
+        for keyword in keywords:
+            if re.search(rf'{keyword}\s*(?:\([^)]*\))?', actions_section.upper()):
+                actions.append(keyword)
+        
+        return list(set(actions))
+    
+    def check_format(self, response_text):
+        """Check if response has required format"""
+        return all(section in response_text for section in 
+                  ["Understanding:", "Actions:", "Feedback:"])
+    
+    def test_model(self, model_name, scenario_type, command, expected_actions, should_clarify):
+        """Test one scenario"""
+        try:
             model_id = Config.ALL_MODELS.get(model_name)
             if not model_id:
-                return {"error": f"Model {model_name} not found"}
+                return None
             
-            # API call
+            # Time the response
+            start = time.time()
+            
             response = self.client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": self.system_prompt},
+                    {"role": "system", "content": self.create_system_prompt()},
                     {"role": "user", "content": command}
                 ],
                 model=model_id,
@@ -72,140 +173,178 @@ Feedback: [any questions or status]"""
                 max_tokens=Config.MAX_TOKENS,
             )
             
+            response_time = time.time() - start
             response_text = response.choices[0].message.content
-            response_time = time.time() - start_time
             
-            # Extract actions
-            actions_found = []
-            action_keywords = ["MOVE", "PICK", "PLACE", "SCAN", "WAIT", "QUERY"]
-            for keyword in action_keywords:
-                if keyword in response_text.upper():
-                    actions_found.append(keyword)
+            # Evaluate metrics
+            actions_found = self.extract_actions(response_text)
+            has_format = self.check_format(response_text)
             
-            # Calculate success score
-            expected_upper = [a.upper() for a in expected_actions]
-            matches = sum(1 for action in expected_upper if action in actions_found)
-            success_score = matches / len(expected_actions) if expected_actions else 1.0
-            
-            # Bonus for good structure
-            if "Understanding:" in response_text or "Actions:" in response_text:
-                success_score += 0.1
-            success_score = min(1.0, success_score)
+            # Check accuracy
+            if should_clarify:
+                # Ambiguous command → should NOT output actions
+                accurate = len(actions_found) == 0
+            else:
+                # Clear command → must match expected actions EXACTLY
+                accurate = set(actions_found) == set(expected_actions)
             
             return {
                 "model": model_name,
-                "response": response_text,
+                "type": scenario_type,
+                "command": command,
                 "response_time": response_time,
-                "actions_found": actions_found,
-                "success_score": success_score,
+                "accurate": accurate,
+                "has_format": has_format,
+                "actions": actions_found,
+                "response": response_text,
                 "error": None
             }
             
         except Exception as e:
             return {
                 "model": model_name,
-                "response": f"ERROR: {str(e)}",
-                "response_time": 999.0,
-                "actions_found": [],
-                "success_score": 0.0,
+                "type": scenario_type,
+                "command": command,
+                "response_time": 999,
+                "accurate": False,
+                "has_format": False,
+                "actions": [],
+                "response": "",
                 "error": str(e)
             }
     
-    def run_evaluation(self, models_to_test=None, scenario_count=None):
-        """Run evaluation"""
+    def run_evaluation(self, models_to_test=None, debug=False):
+        """Run evaluation on all models"""
         if models_to_test is None:
             models_to_test = Config.MODELS_TO_TEST
         
-        if scenario_count is None:
-            scenario_count = Config.SCENARIO_COUNT
+        scenarios = self.get_test_scenarios()
+        
+        print("=" * 70)
+        print("🔬 LLM EVALUATION FOR SECTION 5.1")
+        print("=" * 70)
+        print(f"Testing {len(models_to_test)} models on {len(scenarios)} scenarios")
+        print(f"Using objects from: {self.objects_file}")
+        if debug:
+            print("🐛 DEBUG MODE: Will show full responses")
+        print()
+        
+        for model in models_to_test:
+            print(f"\n{'='*70}")
+            print(f"Testing: {model}")
+            print('='*70)
             
-        scenarios = self.get_test_scenarios(scenario_count)
-        
-        print(f"🚀 Testing {len(models_to_test)} models on {len(scenarios)} scenarios")
-        print(f"Models: {models_to_test}")
-        
-        all_results = []
-        total_tests = len(models_to_test) * len(scenarios)
-        current_test = 0
-        
-        for model_name in models_to_test:
-            if model_name not in Config.ALL_MODELS:
-                print(f"❌ Model {model_name} not found")
-                continue
+            for scenario_type, command, expected_actions, should_clarify in scenarios:
+                print(f"\n  [{scenario_type}] \"{command[:50]}...\"" if len(command) > 50 else f"\n  [{scenario_type}] \"{command}\"")
                 
-            print(f"\n🤖 Testing {model_name}...")
-            
-            for scenario_id, command, expected_actions in scenarios:
-                current_test += 1
-                progress = (current_test / total_tests) * 100
-                print(f"   [{progress:5.1f}%] {scenario_id}", end=" ")
+                result = self.test_model(model, scenario_type, command, expected_actions, should_clarify)
                 
-                result = self.test_model(model_name, command, expected_actions)
-                result["scenario_id"] = scenario_id
-                result["command"] = command
-                all_results.append(result)
-                
-                if result["error"]:
-                    print("❌ ERROR")
-                else:
-                    print(f"✅ {result['success_score']:.2f} ({result['response_time']:.2f}s)")
+                if result:
+                    self.results.append(result)
+                    
+                    if result['error']:
+                        print(f"     ❌ ERROR: {result['error']}")
+                    else:
+                        acc_icon = "✅" if result['accurate'] else "❌"
+                        fmt_icon = "✅" if result['has_format'] else "❌"
+                        print(f"     {acc_icon} Accurate | {fmt_icon} Format | ⏱️  {result['response_time']:.2f}s")
+                        print(f"     Actions found: {result['actions']}")
+                        
+                        # Debug mode shows full response
+                        if debug:
+                            print(f"\n     --- Full Response ---")
+                            for line in result['response'].split('\n'):
+                                print(f"     {line}")
+                            print(f"     --------------------\n")
                 
                 time.sleep(Config.RATE_LIMIT_DELAY)
         
-        self.results = all_results
+        print("\n" + "=" * 70)
+        print("✅ EVALUATION COMPLETE")
+        print("=" * 70 + "\n")
+        
         return self.create_summary()
     
     def create_summary(self):
-        """Create summary DataFrame"""
-        data = []
-        for result in self.results:
-            data.append({
-                'Model': result['model'],
-                'Scenario_ID': result['scenario_id'],
-                'Success_Score': result['success_score'],
-                'Response_Time': result['response_time'],
-                'Actions_Found': len(result['actions_found']),
-                'Has_Error': result['error'] is not None
-            })
+        """Create summary for report"""
+        if not self.results:
+            return None
         
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(self.results)
         
-        # Print summary
-        print(f"\n{'='*50}")
-        print("📊 EVALUATION SUMMARY")
-        print(f"{'='*50}")
+        print("📊 SUMMARY - Section 5.1 Metrics")
+        print("-" * 70)
+        print(f"{'Model':<25} {'Avg Time':<12} {'Accuracy':<12} {'Format':<12}")
+        print("-" * 70)
         
-        for model in df['Model'].unique():
-            model_data = df[df['Model'] == model]
-            successful_tests = model_data[~model_data['Has_Error']]
+        stats = {}
+        for model in df['model'].unique():
+            model_df = df[df['model'] == model]
+            success_df = model_df[model_df['error'].isna()]
             
-            if len(successful_tests) > 0:
-                avg_time = successful_tests['Response_Time'].mean()
-                avg_success = successful_tests['Success_Score'].mean()
-                success_rate = len(successful_tests) / len(model_data) * 100
+            if len(success_df) > 0:
+                avg_time = success_df['response_time'].mean()
+                accuracy = (success_df['accurate'].sum() / len(success_df)) * 100
+                format_pct = (success_df['has_format'].sum() / len(success_df)) * 100
                 
-                print(f"\n🤖 {model.upper()}:")
-                print(f"   Success Rate: {success_rate:5.1f}% ({len(successful_tests)}/{len(model_data)})")
-                print(f"   Avg Response Time: {avg_time:5.2f}s")
-                print(f"   Avg Success Score: {avg_success:5.2f}")
-            else:
-                print(f"\n❌ {model.upper()}: All tests failed")
+                stats[model] = {
+                    'avg_time': avg_time,
+                    'accuracy': accuracy,
+                    'format': format_pct
+                }
+                
+                print(f"{model:<25} {avg_time:>5.2f}s      {accuracy:>5.1f}%       {format_pct:>5.1f}%")
         
-        self.save_results(df)
-        return df
+        print("-" * 70)
+        
+        # Best model
+        if stats:
+            best = max(stats.items(), key=lambda x: (x[1]['accuracy'], -x[1]['avg_time']))
+            print(f"\n🏆 Best: {best[0]}")
+            print(f"   Accuracy: {best[1]['accuracy']:.1f}%")
+            print(f"   Speed: {best[1]['avg_time']:.2f}s")
+            print(f"   Format: {best[1]['format']:.1f}%")
+        
+        # Save results
+        self.save_results(df, stats)
+        
+        return df, stats
     
-    def save_results(self, df):
+    def save_results(self, df, stats):
         """Save results"""
         import os
         os.makedirs(Config.RESULTS_DIR, exist_ok=True)
         
-        # Save CSV
-        csv_path = f"{Config.RESULTS_DIR}/results.csv"
+        # CSV
+        csv_path = f"{Config.RESULTS_DIR}/evaluation_results.csv"
         df.to_csv(csv_path, index=False)
-        print(f"\n📊 Results saved to: {csv_path}")
         
-        # Save detailed JSON
+        # Stats JSON
+        stats_path = f"{Config.RESULTS_DIR}/model_stats.json"
+        with open(stats_path, 'w') as f:
+            json.dump(stats, f, indent=2)
+        
+        # Detailed JSON
         json_path = f"{Config.RESULTS_DIR}/detailed_results.json"
         with open(json_path, 'w') as f:
             json.dump(self.results, f, indent=2)
-        print(f"📝 Details saved to: {json_path}")
+        
+        print(f"\n💾 Saved to {Config.RESULTS_DIR}/")
+        print(f"   - evaluation_results.csv")
+        print(f"   - model_stats.json")
+        print(f"   - detailed_results.json")
+
+
+def main():
+    """Run evaluation"""
+    import sys
+    
+    # Check for debug flag
+    debug = "--debug" in sys.argv or "-d" in sys.argv
+    
+    evaluator = SimpleLLMEvaluator()
+    df, stats = evaluator.run_evaluation(debug=debug)
+
+
+if __name__ == "__main__":
+    main()
