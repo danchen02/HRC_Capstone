@@ -159,6 +159,7 @@ IMPORTANT:
 - Use exact object names from the workspace list
 - Coordinates should be within robot reach (-0.5 to 0.5 for x,y, 0.01 to 1.0 for z)
 - Consider previous conversation when interpreting current request ingnoring coordinates (only use item locations from "CURRENT WORKSPACE")
+- Draw context from "CONVERSATION MEMORY"
 - Past conversations may have incorrect environment data, always use objects in the "CURRENT WORKSPACE"
 - If object not found, suggest SCAN() first
 - When asked to pass an object to the human, use MOVE() not PLACE()
