@@ -116,12 +116,12 @@ class ReachabilityVisualizer(Node):
             marker.pose.position.z = float(z)
             marker.pose.orientation.w = 1.0
             
-            marker.scale.x = 0.03  # 3cm spheres
-            marker.scale.y = 0.03
-            marker.scale.z = 0.03
+            marker.scale.x = 0.02  # 2cm spheres
+            marker.scale.y = 0.02
+            marker.scale.z = 0.02
             
             # Green for reachable
-            marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.6)
+            marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.4)
             
             marker.lifetime.sec = 0  # Never delete
             

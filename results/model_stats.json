@@ -1,0 +1,27 @@
+{
+  "llama3.3-70b": {
+    "avg_time": 0.47591304779052734,
+    "accuracy": 100.0,
+    "format": 100.0
+  },
+  "llama4-maverick": {
+    "avg_time": 0.45530972480773924,
+    "accuracy": 60.0,
+    "format": 100.0
+  },
+  "compound": {
+    "avg_time": 5.084314823150635,
+    "accuracy": 80.0,
+    "format": 80.0
+  },
+  "gpt-oss-120b": {
+    "avg_time": 0.6503100872039795,
+    "accuracy": 100.0,
+    "format": 100.0
+  },
+  "kimi-k2-0905": {
+    "avg_time": 0.5727083683013916,
+    "accuracy": 100.0,
+    "format": 100.0
+  }
+}

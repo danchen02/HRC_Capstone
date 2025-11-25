@@ -1,139 +1,149 @@
-# Object Database for LLM-Cobot System
-# Last updated: 2025-08-16T14:30:25Z
+timestamp: '2025-10-30T05:06:12Z'
 
-metadata:
-  last_updated: 2025-08-16T14:30:25Z
-  total_objects: 4
-  workspace_bounds:
-    x_min: -0.8
-    x_max: 0.8
-    y_min: -0.8
-    y_max: 0.8
-    z_min: 0.1
-    z_max: 1.0
+camera_pose:
+  position:
+    x: 0.03650913973918577
+    y: 1.755773021636748
+    z: 0.7583191563985069
+  orientation:
+    x: -0.025977613245949844
+    y: -0.9655651678986434
+    z: 0.25883629256769103
+    w: 0.003583824873107609
 
 objects:
-  hammer_001:
-    name: hammer
-    description: red claw hammer with wooden handle
-    category: tool
+  a_Ar_tag_003:
+    name: a Ar tag
+    description: a Ar tag
+    category: unknown
     position:
-      x: 0.32
-      y: 0.15
-      z: 0.12
+      x: -0.24191063903198015
+      y: 0.4246824044131309
+      z: 0.04
     orientation:
       roll: 0.0
       pitch: 0.0
-      yaw: 1.57
+      yaw: 48.24267843208549
     dimensions:
-      length: 0.28
-      width: 0.12
-      height: 0.05
-    properties:
-      graspable: true
-      moveable: true
-      weight: light
-      color: red
-      material: metal_wood
-    confidence: 0.95
-    last_seen: 2025-08-16T14:30:20Z
-
-  cube_002:
-    name: cube
-    description: red cube
-    category: object
-    position:
-      x: 0.3
-      y: 0.0
-      z: 0.03
-    orientation:
-      roll: 0.0
-      pitch: 0.0
-      yaw: 0.0
-    dimensions:
-      length: 0.05
-      width: 0.05
-      height: 0.05
-    properties:
-      graspable: true
-      moveable: true
-      weight: light
-      color: red
-      material: plastic
-    confidence: 0.89
-    last_seen: 2025-08-16T14:29:45Z
-
-  bolt_003:
-    name: bolt
-    description: small metal hex bolt
-    category: fastener
-    position:
-      x: 0.65
-      y: -0.12
-      z: 0.105
-    orientation:
-      roll: 0.0
-      pitch: 1.57
-      yaw: 0.0
-    dimensions:
-      length: 0.03
-      width: 0.008
-      height: 0.008
-    properties:
-      graspable: true
-      moveable: true
-      weight: very_light
-      color: silver
-      material: metal
-    confidence: 0.78
-    last_seen: 2025-08-16T14:28:12Z
-
-  human_004:
-    name: human
-    description: human collaborator
-    category: human
-    position:
-      x: 0.5
-      y: 0.0
-      z: 0.3
-    orientation:
-      roll: 0.0
-      pitch: 0.0
-      yaw: 0.0
-    dimensions:
-      length: 0.30
-      width: 0.30
-      height: 0.30
+      length: 0.23917149863841458
+      width: 0.23159064720282405
+      height: 0.029699439628965263
     properties:
       graspable: false
-      moveable: false
-      weight: heavy
-      color: black
-      material: organic
-    confidence: 0.92
-    last_seen: 2025-08-16T14:29:45Z
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.27973613142967224
+    num_points: 2877
+    ply_file: /home/dan/full_integration/out/scene_objects/object_003_a_Ar_tag.ply
+    last_seen: '2025-10-30T05:06:12Z'
 
-  cube_005:
-    name: cube
-    description: blue cube
-    category: object
+  a_red_dice_002:
+    name: a red dice
+    description: a red dice
+    category: unknown
     position:
-      x: 0.3
-      y: -0.3
-      z: 0.11
+      x: 0.06825250380492669
+      y: 0.4141710627079758
+      z: 0.046291511240640196
     orientation:
       roll: 0.0
       pitch: 0.0
-      yaw: 0.0
+      yaw: 77.82418629854358
     dimensions:
-      length: 0.05
-      width: 0.05
+      length: 0.0715800420762225
+      width: 0.05231286590362777
+      height: 0.02238899771509051
+    properties:
+      graspable: true
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.3073406517505646
+    num_points: 481
+    ply_file: /home/dan/full_integration/out/scene_objects/object_002_a_red_dice.ply
+    last_seen: '2025-10-30T05:06:12Z'
+
+  a_yellow_dice_004:
+    name: a yellow dice
+    description: a yellow dice
+    category: unknown
+    position:
+      x: 0.35039334005300204
+      y: 0.15318511690896766
+      z: 0.042063940432125496
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 78.74839705684215
+    dimensions:
+      length: 0.0838074576017167
+      width: 0.07695250827314402
+      height: 0.02711302578281139
+    properties:
+      graspable: true
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.3533841073513031
+    num_points: 534
+    ply_file: /home/dan/full_integration/out/scene_objects/object_004_a_yellow_dice.ply
+    last_seen: '2025-10-30T05:06:12Z'
+
+  a_blue_dice_008:
+    name: a blue dice
+    description: a blue dice
+    category: unknown
+    position:
+      x: -0.21714146248434713
+      y: 0.16055108777401494
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 72.73557854932513
+    dimensions:
+      length: 0.08443606804077454
+      width: 0.06671641604654689
+      height: 0.028558161320809017
+    properties:
+      graspable: false
+      moveable: true
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.3724507987499237
+    num_points: 353
+    ply_file: /home/dan/full_integration/out/scene_objects/object_008_a_blue_dice.ply
+    last_seen: '2025-10-30T05:06:12Z'
+
+  a_hammer_010:
+    name: a hammer
+    description: a hammer
+    category: tool
+    position:
+      x: 0.10
+      y: -0.20
+      z: 0.04
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 15.0
+    dimensions:
+      length: 0.30
+      width: 0.09
       height: 0.05
     properties:
       graspable: true
       moveable: true
-      weight: light
-      color: blue
-      material: plastic
-    confidence: 0.89
-    last_seen: 2025-08-16T14:29:45Z
+      weight: unknown
+      color: unknown
+      material: unknown
+    confidence: 0.50
+    num_points: 1200
+    ply_file: /home/dan/full_integration/out/scene_objects/object_010_a_hammer.ply
+    last_seen: '2025-10-30T05:06:12Z'
+

@@ -382,7 +382,7 @@ def main():
         
         # Create motion planner (needed for IK service)
         print("\n📡 Connecting to robot system...")
-        planner = MotionPlanner(group_name="ur_onrobot_manipulator")
+        planner = MotionPlanner(group_name="ur_manipulator")
         
         # Create reachability map
         print("🗺️  Initializing reachability map...")
@@ -402,9 +402,9 @@ def main():
         
         # Define workspace bounds for UR3e
         # UR3e has ~500mm reach, accounting for mounting and gripper
-        x_range = (-0.5, 0.5)   # 80cm range in X
-        y_range = (-0.5, 0.5)   # 80cm range in Y  
-        z_range = (0.01, 0.5)    # 10cm to 50cm height (above table)
+        x_range = (-0.6, 0.6)   # 80cm range in X
+        y_range = (-0.6, 0.6)   # 80cm range in Y  
+        z_range = (0.01, 1)    # 10cm to 50cm height (above table)
         
         print(f"\nWorkspace bounds:")
         print(f"  X: {x_range[0]}m to {x_range[1]}m")

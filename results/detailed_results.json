@@ -1,0 +1,614 @@
+[
+  {
+    "model": "llama3.3-70b",
+    "type": "clear",
+    "command": "Pick up the red cube",
+    "response_time": 0.5755057334899902,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PICK"
+    ],
+    "response": "Understanding: The user wants to pick up the red cube.\nActions: PICK(cube_002)\nFeedback: I will attempt to pick up the red cube. Please ensure the area is clear and the cube is accessible.",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "clear",
+    "command": "Go to home position",
+    "response_time": 0.4339747428894043,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "HOME"
+    ],
+    "response": "Understanding: The user wants the robot to move to its home position, which is a safe starting position.\nActions: HOME()\nFeedback: Moving to home position.",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "clear",
+    "command": "Move to position 1.2, 0.6, 0.1",
+    "response_time": 0.5578675270080566,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants the robot to move to a specific position in the workspace.\nActions: \nFeedback: The specified coordinates (1.2, 0.6, 0.1) are outside the robot's reach. The robot's x and y coordinates are limited to -0.5 to 0.5. Can you provide coordinates within the robot's reach?",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "ambiguous",
+    "command": "Pick up that thing over there",
+    "response_time": 0.45427846908569336,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants to pick up an object, but the object is not specified.\nActions: \nFeedback: Could you please specify which object you would like me to pick up? There are several objects in the workspace, including hammers, cubes, and bolts.",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "ambiguous",
+    "command": "Move it to the other side",
+    "response_time": 0.45552492141723633,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants to move an object to the other side of the workspace.\nActions: \nFeedback: Could you please specify which object you would like to move and what you mean by \"the other side\"? Is it a specific location or relative to the object's current position or the human collaborator?",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "ambiguous",
+    "command": "Pick up the cube",
+    "response_time": 0.4570298194885254,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants to pick up a cube.\nActions: \nFeedback: There are multiple cubes in the workspace. Could you please specify which cube you would like me to pick up, the red cube or the blue cube?",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "multi-step",
+    "command": "Pick up the blue cube and place it at 0.3, 0.4, 0.1",
+    "response_time": 0.4595527648925781,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PLACE",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants to pick up the blue cube and place it at a specific location.\nActions: PICK(cube_005), PLACE(0.3, 0.4, 0.1)\nFeedback: I will pick up the blue cube and place it at the specified coordinates.",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "multi-step",
+    "command": "Scan the workspace then pick up the hammer",
+    "response_time": 0.5535275936126709,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "SCAN",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants to scan the workspace to update object detection and then pick up the hammer.\nActions: SCAN(), PICK(hammer_001)\nFeedback: Scanning the workspace to update object detection. Then, I will attempt to pick up the hammer. Please ensure the hammer is within my reach and not obstructed by any other objects.",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "contextual",
+    "command": "What tools are in the workspace?",
+    "response_time": 0.4609668254852295,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants to know what tools are currently in the workspace.\nActions: \nFeedback: There is a hammer in the workspace.",
+    "error": null
+  },
+  {
+    "model": "llama3.3-70b",
+    "type": "contextual",
+    "command": "Open the gripper",
+    "response_time": 0.35090208053588867,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "GRIPPER"
+    ],
+    "response": "Understanding: The user wants to open the gripper.\nActions: GRIPPER(open)\nFeedback: Gripper is now open.",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "clear",
+    "command": "Pick up the red cube",
+    "response_time": 0.764136552810669,
+    "accurate": false,
+    "has_format": true,
+    "actions": [
+      "MOVE",
+      "GRIPPER",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants the robot to pick up the red cube.\n\nActions:\n- MOVE(0.30, 0.00, 0.20)  # Move to the position of the red cube\n- GRIPPER(0.05)  # Open gripper to prepare for pick up\n- GRIPPER(close)  # Close gripper to grasp the cube\n- PICK(cube_002)  # Pick up the red cube\n\nFeedback: Is the red cube at the correct position (0.30, 0.00, 0.03)?\n\n wait, I will reformat the response.\n\nUnderstanding: The user wants the robot to pick up the red cube.\n\nActions:\n- MOVE(0.30, 0.00, 0.20)\n- GRIPPER(0.05)\n- MOVE(0.30, 0.00, 0.03)\n- GRIPPER(close)\n- PICK(cube_002)\n\nFeedback: I will pick the red cube at the specified location. Is that correct? or would you like me to verify its position first?",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "clear",
+    "command": "Go to home position",
+    "response_time": 0.35519909858703613,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "HOME"
+    ],
+    "response": "Understanding: The user wants the robot arm to move to its home position, which is a safe starting position.\n\nActions: HOME()\n\nFeedback: Moving to home position.",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "clear",
+    "command": "Move to position 1.2, 0.6, 0.1",
+    "response_time": 0.41799259185791016,
+    "accurate": false,
+    "has_format": true,
+    "actions": [
+      "MOVE"
+    ],
+    "response": "Understanding: The user wants me to move the end-effector to the coordinates (1.2, 0.6, 0.1).\n\nActions: \n- MOVE(1.2, 0.6, 0.1)\n\nFeedback: The requested coordinates (1.2, 0.6, 0.1) are outside my reachable workspace. My x and y coordinates are limited to the range -0.5 to 0.5. Could you please provide coordinates within my reachable range?",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "ambiguous",
+    "command": "Pick up that thing over there",
+    "response_time": 0.39145779609680176,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants the robot to pick up an object, but the object is not specified.\n\nActions: \n\nFeedback: Could you please specify which object you would like me to pick up? I see a hammer, two cubes, and a bolt in the workspace. Providing more details or the object's name would help me assist you better.",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "ambiguous",
+    "command": "Move it to the other side",
+    "response_time": 0.4497842788696289,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants me to move an object to the other side of the workspace, but it's unclear which object they are referring to and what \"the other side\" means in terms of specific coordinates.\n\nActions: \n\nFeedback: Could you please specify which object you want me to move and provide more details about the destination? For example, you can mention the object name or ID and the desired location. This will help me understand your request accurately.",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "ambiguous",
+    "command": "Pick up the cube",
+    "response_time": 0.46176958084106445,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants the robot to pick up a cube. There are two cubes in the workspace: cube_002 (red) and cube_005 (blue). The command is ambiguous as it doesn't specify which cube to pick.\n\nActions: \n\nFeedback: There are multiple cubes in the workspace. Could you please specify which cube to pick (e.g., red cube or blue cube)?",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "multi-step",
+    "command": "Pick up the blue cube and place it at 0.3, 0.4, 0.1",
+    "response_time": 0.6551427841186523,
+    "accurate": false,
+    "has_format": true,
+    "actions": [
+      "MOVE",
+      "PLACE",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants me to pick up the blue cube (cube_005) and place it at the specified coordinates (0.3, 0.4, 0.1).\n\nActions:\n1. MOVE(0.30, -0.30, 0.2)  # Move to the blue cube's location\n2. PICK(cube_005)  # Pick up the blue cube\n3. MOVE(0.3, 0.4, 0.2)  # Move to the target location\n4. PLACE(0.3, 0.4, 0.1)  # Place the cube at the target location\n\nFeedback: I'm about to pick up the blue cube and place it at the specified location. Please ensure the area is clear. \n\nActions (refined):\n- MOVE(0.30, -0.30, 0.2)\n- PICK(cube_005)\n- MOVE(0.3, 0.4, 0.2)\n- PLACE(0.3, 0.4, 0.1)",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "multi-step",
+    "command": "Scan the workspace then pick up the hammer",
+    "response_time": 0.3542978763580322,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "SCAN",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants me to scan the workspace to update object detection and then pick up the hammer.\n\nActions:\n- SCAN()\n- PICK(hammer_001)\n\nFeedback: Scanning workspace and updating object detection... Done. Attempting to pick up hammer_001.",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "contextual",
+    "command": "What tools are in the workspace?",
+    "response_time": 0.3557877540588379,
+    "accurate": false,
+    "has_format": true,
+    "actions": [
+      "SCAN"
+    ],
+    "response": "Understanding: The user wants to know what tools are available in the current workspace.\n\nActions: SCAN()\n\nFeedback: The workspace contains a hammer (hammer_001). The bolt (bolt_003) could also be considered a tool. Other objects present are cubes (cube_002 and cube_005) and a human collaborator (human_004).",
+    "error": null
+  },
+  {
+    "model": "llama4-maverick",
+    "type": "contextual",
+    "command": "Open the gripper",
+    "response_time": 0.34752893447875977,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "GRIPPER"
+    ],
+    "response": "Understanding: The user wants to control the gripper to open it.\n\nActions: GRIPPER(open)\n\nFeedback: Gripper is now open.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "clear",
+    "command": "Pick up the red cube",
+    "response_time": 3.131622552871704,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PICK"
+    ],
+    "response": "Understanding: The user wants the red cube to be picked up.\n\nActions: PICK(cube_002)\n\nFeedback: I identified the red cube in the workspace as **cube_002**, located at (0.30,\u202f0.00,\u202f0.03). Using the PICK(cube_002) command, the robot has now grasped the red cube.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "clear",
+    "command": "Go to home position",
+    "response_time": 2.146061658859253,
+    "accurate": false,
+    "has_format": true,
+    "actions": [],
+    "response": "**Understanding:**  \nYou want the robot to move to its safe starting (home) position.\n\n**Reasoning:**  \nThe robot has a predefined `HOME()` command that returns the arm to a known safe pose. No additional movement or object handling is required for this request.\n\n**Actions:**  \nHOME()\n\n**Feedback:**  \nThe robot has been commanded to move to its home position. Once executed, the arm will be in the safe starting pose.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "clear",
+    "command": "Move to position 1.2, 0.6, 0.1",
+    "response_time": 5.410464525222778,
+    "accurate": true,
+    "has_format": false,
+    "actions": [],
+    "response": "Understanding: The user asked to move the robot arm to the coordinates (1.2,\u202f0.6,\u202f0.1).  \n\nFeedback:  \n- **Reachability check:** The robot\u2019s reachable workspace is limited to x and y values between \u20130.5\u202fm and\u202f0.5\u202fm, and z values between 0.01\u202fm and\u202f1.0\u202fm.  \n- **Target position:** (1.2,\u202f0.6,\u202f0.1) exceeds the allowed x (1.2\u202f>\u202f0.5) and y (0.6\u202f>\u202f0.5) limits.  \n- **Conclusion:** The requested position is **outside the robot\u2019s reachable range**, so the robot cannot move there.  \n\nIf you provide a target position within the reachable bounds (\u20110.5\u202f\u2264\u202fx\u202f\u2264\u202f0.5, \u20110.5\u202f\u2264\u202fy\u202f\u2264\u202f0.5, 0.01\u202f\u2264\u202fz\u202f\u2264\u202f1.0), I can execute the MOVE command.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "ambiguous",
+    "command": "Pick up that thing over there",
+    "response_time": 1.7874407768249512,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "**Understanding:** You want the robot to pick up an object, but \u201cthat thing over there\u201d isn\u2019t specific enough for me to know which item you mean. In the current workspace I can see a red claw hammer, a red cube, a small metal hex bolt, and a blue cube.\n\n**Actions:** *(none \u2013 need clarification before proceeding)*\n\n**Feedback:** Could you please tell me which object you\u2019d like me to pick up? You can refer to it by its description (e.g., \u201cthe hammer\u201d, \u201cthe red cube\u201d, \u201cthe bolt\u201d, or \u201cthe blue cube\u201d). Once I know the exact item, I can execute the pick\u2011up sequence.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "ambiguous",
+    "command": "Move it to the other side",
+    "response_time": 9.571419715881348,
+    "accurate": true,
+    "has_format": false,
+    "actions": [],
+    "response": "**Understanding**  \nYou asked me to \u201cmove it to the other side.\u201d Since you didn\u2019t specify which object, I inferred that you wanted one of the reachable items to be relocated. I chose the red cube (cube_002) because it is close to the robot\u2019s current position.\n\n**Reasoning & Steps Taken**  \n\n1. **Identify the target object** \u2013 The workspace contains several objects; the red cube (cube_002) is at (0.30,\u202f0.00,\u202f0.03).  \n2. **Approach the object safely** \u2013 Move the end\u2011effector to a point above the cube to avoid collisions.  \n3. **Pick up the object** \u2013 Close the gripper on cube_002.  \n4. **Determine the \u201cother side\u201d** \u2013 I interpreted \u201cthe other side\u201d of the reachable area as a mirrored position on the negative\u2011x side of the workspace, roughly (\u20110.30,\u202f0.00).  \n5. **Transport the object** \u2013 Move the end\u2011effector while holding the cube to the new location.  \n6. **Place the object** \u2013 Lower the cube and release it at the target coordinates.\n\n**Actions Executed**  \n\n- `MOVE(0.3, 0.0, 0.2)` \u2013 Move above the red cube.  \n- `PICK(cube_002)` \u2013 Grasp the red cube.  \n- `MOVE(-0.3, 0.0, 0.2)` \u2013 Transport to the opposite side of the workspace.  \n- `PLACE(-0.3, 0.0, 0.1)` \u2013 Place the cube down.\n\n**Result**  \nThe red cube has been successfully moved from its original position at (0.30,\u202f0.00,\u202f0.03) to the opposite side of the workspace at approximately (\u20110.30,\u202f0.00,\u202f0.10). Let me know if you\u2019d like a different object moved or any further adjustments.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "ambiguous",
+    "command": "Pick up the cube",
+    "response_time": 7.111794710159302,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "**Understanding:**  \nThe user asked to \u201cPick up the cube.\u201d In the current workspace there are two cubes:\n\n- **cube_002** \u2013 red cube at (0.30,\u202f0.00,\u202f0.03)  \n- **cube_005** \u2013 blue cube at (0.30,\u202f\u20110.30,\u202f0.11)\n\nSince the request did not specify a color or location, I assumed the default choice would be the first listed cube, **cube_002** (the red cube).\n\n**Actions:**  \nPICK(cube_002)\n\n**Feedback:**  \nI have picked up the red cube (cube_002). If you intended a different cube (e.g., the blue cube at a different location), please let me know and I\u2019ll adjust accordingly.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "multi-step",
+    "command": "Pick up the blue cube and place it at 0.3, 0.4, 0.1",
+    "response_time": 3.3203072547912598,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PLACE",
+      "PICK"
+    ],
+    "response": "Understanding: You want the robot to pick up the blue cube and place it at the coordinates (0.3,\u202f0.4,\u202f0.1).\n\nActions:\nPICK(cube_005)\nPLACE(0.3, 0.4, 0.1)\n\nFeedback: The blue cube in the workspace is identified as **cube_005** (a blue cube at (0.30,\u202f\u20110.30,\u202f0.11)). The robot will first pick up this object and then place it at the requested location (0.3,\u202f0.4,\u202f0.1). This completes the task as you specified.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "multi-step",
+    "command": "Scan the workspace then pick up the hammer",
+    "response_time": 13.970821142196655,
+    "accurate": false,
+    "has_format": true,
+    "actions": [],
+    "response": "**Understanding:**  \nYou asked me to scan the workspace and then pick up the hammer.\n\n**Actions:**  \n- SCAN()  \n- PICK(hammer_001)\n\n**Feedback:**  \nThe workspace scan confirmed the following objects:\n\n- **hammer_001** \u2013 red claw hammer with wooden handle at coordinates **(0.32,\u202f0.15,\u202f0.12)**\n- cube_002 \u2013 red cube at (0.30,\u202f0.00,\u202f0.03)  \n- bolt_003 \u2013 small metal hex bolt at (0.65,\u202f\u20110.12,\u202f0.10)  \n- human_004 \u2013 human collaborator at (0.50,\u202f0.00,\u202f0.30) (not graspable)  \n- cube_005 \u2013 blue cube at (0.30,\u202f\u20110.30,\u202f0.11)\n\nAfter scanning, I executed `PICK(hammer_001)`, successfully grasping the hammer. The hammer is now held by the robot. Let me know what you\u2019d like me to do next (e.g., place it somewhere, move to another location, etc.).",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "contextual",
+    "command": "What tools are in the workspace?",
+    "response_time": 3.2858903408050537,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants a complete answer to \u201cWhat tools are in the workspace?\u201d including the reasoning we used.\n\nActions: \n\nFeedback: \nTo determine the tools present, I examined the current object list in the workspace:\n\n- **hammer_001** \u2013 a red claw hammer (identified as a tool).\n- **cube_002** \u2013 a red cube (not a tool).\n- **bolt_003** \u2013 a small metal hex bolt (identified as a tool).\n- **human_004** \u2013 a human collaborator (not a tool and not graspable).\n- **cube_005** \u2013 a blue cube (not a tool).\n\nFrom this list, the items that qualify as tools are the **hammer** and the **bolt**. The cubes are ordinary objects, and the human is not a tool. \n\n**Answer:** The tools in the workspace are the hammer and the bolt.",
+    "error": null
+  },
+  {
+    "model": "compound",
+    "type": "contextual",
+    "command": "Open the gripper",
+    "response_time": 1.107325553894043,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "GRIPPER"
+    ],
+    "response": "Understanding: The user wants the robot\u2019s gripper to be opened.\n\nActions: \n- GRIPPER(open)\n\nFeedback: \n- Gripper opened.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "clear",
+    "command": "Pick up the red cube",
+    "response_time": 0.6613204479217529,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PICK"
+    ],
+    "response": "Understanding: The user wants the robot to pick up the red cube.\n\nActions: PICK(cube_002)\n\nFeedback: Picking up the red cube now.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "clear",
+    "command": "Go to home position",
+    "response_time": 0.4544382095336914,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "HOME"
+    ],
+    "response": "Understanding: The user wants the robot to move to its home (safe starting) position.  \nActions: HOME()  \nFeedback: Moving to the home position now.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "clear",
+    "command": "Move to position 1.2, 0.6, 0.1",
+    "response_time": 0.6614446640014648,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants the robot to move to coordinates (1.2,\u202f0.6,\u202f0.1), which are outside the robot\u2019s reachable workspace.\n\nActions: \n\nFeedback: The requested position is beyond my reachable range (x and y must be between \u20130.5\u202fm and\u202f0.5\u202fm). Please provide a target location within that range.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "ambiguous",
+    "command": "Pick up that thing over there",
+    "response_time": 0.5620002746582031,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The request to pick up \"that thing over there\" is ambiguous; I need to know which specific object you want me to pick up.\n\nActions: \n\nFeedback: Could you please specify which object you would like me to pick up (e.g., the hammer, the red cube, the bolt, or the blue cube)?",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "ambiguous",
+    "command": "Move it to the other side",
+    "response_time": 0.9738426208496094,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants to move an object, but it is unclear which object (\"it\") and what location \"the other side\" refers to.\n\nActions: \n\nFeedback: Could you please specify which object you would like me to move and where you would like it placed? For example, you can tell me the object ID (e.g., hammer_001) and the target coordinates or a description of the location.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "ambiguous",
+    "command": "Pick up the cube",
+    "response_time": 0.8550705909729004,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants the robot to pick up a cube, but there are multiple cubes in the workspace.\n\nActions: \n\nFeedback: Which cube would you like me to pick up\u2014the red cube at (0.30,\u202f0.00,\u202f0.03) or the blue cube at (0.30,\u202f\u20110.30,\u202f0.11)?",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "multi-step",
+    "command": "Pick up the blue cube and place it at 0.3, 0.4, 0.1",
+    "response_time": 0.8655526638031006,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PLACE",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants the robot to pick up the blue cube and place it at the coordinates (0.3,\u202f0.4,\u202f0.1).\n\nActions: PICK(cube_005)  \nPLACE(0.3, 0.4, 0.1)\n\nFeedback: Executing the pick\u2011up of the blue cube and placing it at the requested location.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "multi-step",
+    "command": "Scan the workspace then pick up the hammer",
+    "response_time": 0.5588886737823486,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "SCAN",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants the robot to scan the workspace and then pick up the hammer.\n\nActions: \nSCAN()\nPICK(hammer_001)\n\nFeedback: Scanning now, then I will pick up the hammer.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "contextual",
+    "command": "What tools are in the workspace?",
+    "response_time": 0.4659750461578369,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user wants to know which tools are present in the workspace.  \nActions:   \nFeedback: The workspace contains a red claw hammer and a small metal hex bolt. The other items are cubes and a human collaborator.",
+    "error": null
+  },
+  {
+    "model": "gpt-oss-120b",
+    "type": "contextual",
+    "command": "Open the gripper",
+    "response_time": 0.4445676803588867,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "GRIPPER"
+    ],
+    "response": "Understanding: The user wants the robot to open its gripper.  \nActions: GRIPPER(open)  \nFeedback: Gripper opened.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "clear",
+    "command": "Pick up the red cube",
+    "response_time": 0.35225987434387207,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PICK"
+    ],
+    "response": "Understanding: You want me to pick up the red cube (cube_002) from the workspace.\n\nActions: PICK(cube_002)\n\nFeedback: I've picked up the red cube.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "clear",
+    "command": "Go to home position",
+    "response_time": 0.35214829444885254,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "HOME"
+    ],
+    "response": "Understanding: You want me to move the robot arm to its home/safe starting position.\n\nActions: HOME()\n\nFeedback: Moving to home position now.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "clear",
+    "command": "Move to position 1.2, 0.6, 0.1",
+    "response_time": 0.6635658740997314,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: You want me to move the robot's end-effector to coordinates (1.2, 0.6, 0.1).\n\nActions: \n\nFeedback: I cannot move to those coordinates as they are outside my workspace limits. The x-coordinate of 1.2 exceeds my maximum reach of 0.5, and the y-coordinate of 0.6 also exceeds my maximum reach of 0.5. Please provide coordinates within my workspace range: x between -0.5 to 0.5, y between -0.5 to 0.5, and z between 0.01 to 1.0.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "ambiguous",
+    "command": "Pick up that thing over there",
+    "response_time": 0.6641252040863037,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: You want me to pick up an object, but I need clarification on which specific object you're referring to.\n\nActions: \n\nFeedback: I can see several objects in the workspace - a red hammer, a red cube, a blue cube, and a metal bolt. Could you please specify which object you'd like me to pick up? You can describe it by color, type, or approximate location.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "ambiguous",
+    "command": "Move it to the other side",
+    "response_time": 0.6556510925292969,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: I need clarification on which object you want me to move and where exactly \"the other side\" refers to. There are multiple objects in the workspace (hammer, red cube, blue cube, and bolt).\n\nActions: \n\nFeedback: Could you please specify which object you'd like me to move? I can see a hammer, red cube, blue cube, and a bolt in the workspace. Also, could you clarify where exactly \"the other side\" means - are you referring to the opposite side of the table, or a specific location?",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "ambiguous",
+    "command": "Pick up the cube",
+    "response_time": 0.55568528175354,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: You want me to pick up a cube, but there are two cubes in the workspace - a red cube (cube_002) and a blue cube (cube_005). I need to know which one you'd like me to pick up.\n\nActions: \n\nFeedback: I can see two cubes in the workspace - a red cube and a blue cube. Which cube would you like me to pick up?",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "multi-step",
+    "command": "Pick up the blue cube and place it at 0.3, 0.4, 0.1",
+    "response_time": 0.8437516689300537,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "PLACE",
+      "PICK"
+    ],
+    "response": "Understanding: You want me to pick up the blue cube (cube_005) and place it at coordinates (0.3, 0.4, 0.1).\n\nActions: PICK(cube_005)\nPLACE(0.3, 0.4, 0.1)\n\nFeedback: I've picked up the blue cube and placed it at the specified location.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "multi-step",
+    "command": "Scan the workspace then pick up the hammer",
+    "response_time": 0.3987562656402588,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "SCAN",
+      "PICK"
+    ],
+    "response": "Understanding: The user wants me to scan the workspace to update object detection, then pick up the hammer.\n\nActions: SCAN()\nPICK(hammer_001)\n\nFeedback: Scanning workspace and picking up the red claw hammer.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "contextual",
+    "command": "What tools are in the workspace?",
+    "response_time": 0.6104283332824707,
+    "accurate": true,
+    "has_format": true,
+    "actions": [],
+    "response": "Understanding: The user is asking what tools are currently available in the workspace.\n\nActions: \n\nFeedback: There is one tool in the workspace - a red claw hammer with a wooden handle.",
+    "error": null
+  },
+  {
+    "model": "kimi-k2-0905",
+    "type": "contextual",
+    "command": "Open the gripper",
+    "response_time": 0.6307117938995361,
+    "accurate": true,
+    "has_format": true,
+    "actions": [
+      "GRIPPER"
+    ],
+    "response": "Understanding: You want me to open the gripper to release any held object or prepare for picking.\n\nActions: GRIPPER(open)\n\nFeedback: Gripper is now open",
+    "error": null
+  }
+]
